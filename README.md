@@ -2,11 +2,11 @@
 
 A comprehensive backend API for a video streaming platform built with Node.js, Express, and MongoDB. This project provides a complete social media and video sharing experience with features like user authentication, video management, comments, likes, playlists, and subscriptions.
 
-## 🚧 Project Status
+## Project Status
 
 **This project is currently under development.** Some features may be incomplete or in progress.
 
-## ✨ Features
+## Features
 
 ### Core Functionality
 - **User Management**: Registration, login, profile management with JWT authentication
@@ -26,7 +26,7 @@ A comprehensive backend API for a video streaming platform built with Node.js, E
 - CORS enabled for cross-origin requests
 - Environment-based configuration
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Runtime**: Node.js
 - **Framework**: Express.js
@@ -37,7 +37,7 @@ A comprehensive backend API for a video streaming platform built with Node.js, E
 - **Password Hashing**: bcrypt
 - **Development**: Nodemon for hot reloading
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 Backend/
@@ -75,7 +75,7 @@ Backend/
 └── Frontend/            # Frontend application (basic HTML)
 ```
 
-## 🚀 Getting Started
+##  Getting Started
 
 ### Prerequisites
 
@@ -123,7 +123,7 @@ Backend/
 
 The server will start on `http://localhost:8000`
 
-## 📚 API Endpoints
+##  API Endpoints
 
 ### Base URL: `/api/v1`
 
@@ -158,14 +158,14 @@ The server will start on `http://localhost:8000`
 #### Analytics
 - `GET /dashboard/stats` - Get dashboard statistics
 
-## 🔧 Development
+##  Development
 
 ### Available Scripts
 
 - `npm run dev` - Start development server with hot reloading
 - `npm run start` - Start production server
 
-## 🤝 Contributing
+##  Contributing
 
 This project is currently under development. Contributions, issues, and feature requests are welcome!
 
