@@ -4,6 +4,7 @@ import { useState, useEffect, type FormEvent } from "react";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/context/AuthContext";
 import { ago } from "@/lib/format";
+import { eyebrow, avatar, btnPrimary, btn } from "@/lib/ui";
 import type { Comment } from "@/types";
 
 export default function Comments({
@@ -54,46 +55,46 @@ export default function Comments({
     };
 
     return (
-        <section style={{ marginTop: 30 }}>
-            <p className="eyebrow" style={{ marginBottom: 14 }}>
+        <section className="mt-[30px]">
+            <p className={eyebrow + " mb-3.5"}>
                 {total} comments
             </p>
 
             {user && (
-                <form onSubmit={submit} style={{ display: "flex", gap: 10, marginBottom: 22 }}>
-                    <img className="avatar" src={user.avatar} alt="" />
+                <form onSubmit={submit} className="flex gap-2.5 mb-[22px]">
+                    <img className={avatar} src={user.avatar} alt="" />
                     <input
-                        className="comment-input"
+                        className="flex-1 bg-transparent border-0 border-b border-line px-0.5 py-1.5 text-[13.5px] focus:outline-none focus:border-b-line-bright"
                         value={text}
                         onChange={(e) => setText(e.target.value)}
                         placeholder="Add a comment"
                         aria-label="Add a comment"
                         maxLength={5000}
                     />
-                    <button className="btn btn-primary" disabled={!text.trim() || posting}>
+                    <button className={btnPrimary} disabled={!text.trim() || posting}>
                         {posting ? "Posting" : "Comment"}
                     </button>
                 </form>
             )}
 
             {comments.length === 0 ? (
-                <p style={{ color: "var(--text-faint)", fontSize: 13 }}>
+                <p className="text-text-faint text-[13px]">
                     No comments yet.{user ? " Start the conversation." : " Sign in to comment."}
                 </p>
             ) : (
                 comments.map((c) => (
-                    <div key={c._id} className="comment">
-                        <img className="avatar" src={c.owner?.avatar} alt="" />
-                        <div style={{ minWidth: 0 }}>
-                            <p style={{ margin: 0, fontSize: 12.5 }}>
+                    <div key={c._id} className="flex gap-[10px] mb-4">
+                        <img className={avatar} src={c.owner?.avatar} alt="" />
+                        <div className="min-w-0">
+                            <p className="m-0 text-[12.5px]">
                                 <strong>{c.owner?.username}</strong>{" "}
-                                <span style={{ color: "var(--text-faint)" }}>{ago(c.createdAt)}</span>
+                                <span className="text-text-faint">{ago(c.createdAt)}</span>
                             </p>
-                            <p style={{ margin: "2px 0 0", fontSize: 13.5 }}>{c.content}</p>
+                            <p className="mt-0.5 mb-0 text-[13.5px]">{c.content}</p>
                         </div>
                         {user?._id === c.owner?._id && (
                             <button
-                                className="btn"
+                                className={btn}
                                 style={{ marginLeft: "auto", fontSize: 11, padding: "3px 9px" }}
                                 onClick={() => remove(c._id)}
                             >

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/context/AuthContext";
 import { count } from "@/lib/format";
+import { btn, btnPrimary, btnOn } from "@/lib/ui";
 import type { Video } from "@/types";
 
 /**
@@ -47,7 +48,7 @@ export default function WatchActions({ video }: { video: Video }) {
 
     if (!user) {
         return (
-            <span className="btn" style={{ cursor: "default" }}>
+            <span className={btn} style={{ cursor: "default" }}>
                 {count(likes)} likes
             </span>
         );
@@ -56,12 +57,12 @@ export default function WatchActions({ video }: { video: Video }) {
     return (
         <>
             {video.owner._id !== user._id && (
-                <button className={`btn${subscribed ? "" : " btn-primary"}`} onClick={toggleSub}>
+                <button className={subscribed ? btn : btnPrimary} onClick={toggleSub}>
                     {subscribed ? "Subscribed" : "Subscribe"}
                 </button>
             )}
             <button
-                className={`btn${liked ? " btn-on" : ""}`}
+                className={liked ? btnOn : btn}
                 onClick={toggleLike}
                 aria-pressed={liked}
             >

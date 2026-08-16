@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useTransition } from "react";
+import { btn, btnOn } from "@/lib/ui";
 
 /**
  * Toggles the feed's `explain` flag.
@@ -31,8 +32,8 @@ export default function ScoringToggle() {
 
     return (
         <button
-            className={`btn${on ? " btn-on" : ""}`}
-            style={{ marginLeft: "auto", fontSize: 12, padding: "5px 11px" }}
+            className={(on ? btnOn : btn) + " ml-auto"}
+            style={{ fontSize: 12, padding: "5px 11px" }}
             onClick={toggle}
             aria-pressed={on}
             disabled={pending}

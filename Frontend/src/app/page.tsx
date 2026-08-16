@@ -4,6 +4,7 @@ import VideoGrid, { GridSkeleton } from "@/components/VideoGrid";
 import VideoCard from "@/components/VideoCard";
 import ScoringToggle from "@/components/ScoringToggle";
 import Empty from "@/components/Empty";
+import { feedHead, hDisplay, eyebrow, grid } from "@/lib/ui";
 import type { Feed, Video } from "@/types";
 
 /**
@@ -63,13 +64,13 @@ async function PersonalisedFeed({
 
     return (
         <>
-            <div className="feed-head">
-                <h1 className="h-display">{signedIn ? "For you" : "Popular now"}</h1>
+            <div className={feedHead}>
+                <h1 className={hDisplay + " text-[26px]"}>{signedIn ? "For you" : "Popular now"}</h1>
 
                 {/* The strategy readout is the point: the feed says out loud
                     which path produced it instead of pretending it's magic. */}
                 {feed?.strategy && (
-                    <span className="eyebrow">
+                    <span className={eyebrow}>
                         {feed.strategy === "personalised"
                             ? `personalised · ${feed.candidatePoolSize} candidates ranked`
                             : feed.strategy === "cold_start"
@@ -99,7 +100,7 @@ async function PersonalisedFeed({
                 <>
                     <VideoGrid videos={items} feedSource="home" />
                     {explain && (
-                        <p className="eyebrow" style={{ marginTop: 22, color: "var(--text-dim)" }}>
+                        <p className="font-mono text-[10px] font-medium tracking-[0.14em] uppercase text-text-dim mt-[22px]">
                             Coloured pips show which retrieval source surfaced each video. Open one
                             to see the full score breakdown.
                         </p>
@@ -119,11 +120,11 @@ async function ContinueWatching() {
     if (!items.length) return null;
 
     return (
-        <section style={{ marginBottom: 38 }}>
-            <div className="feed-head">
-                <h2 className="h-display" style={{ fontSize: 18 }}>Continue watching</h2>
+        <section className="mb-[38px]">
+            <div className={feedHead}>
+                <h2 className={hDisplay + " text-lg"}>Continue watching</h2>
             </div>
-            <div className="grid">
+            <div className={grid}>
                 {items.slice(0, 4).map((v) => (
                     <VideoCard key={v._id} video={v} feedSource="home" />
                 ))}
@@ -135,8 +136,8 @@ async function ContinueWatching() {
 function FeedSkeleton({ signedIn }: { signedIn: boolean }) {
     return (
         <>
-            <div className="feed-head">
-                <h1 className="h-display">{signedIn ? "For you" : "Popular now"}</h1>
+            <div className={feedHead}>
+                <h1 className={hDisplay + " text-[26px]"}>{signedIn ? "For you" : "Popular now"}</h1>
             </div>
             <GridSkeleton />
         </>

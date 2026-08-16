@@ -12,6 +12,7 @@ import Comments from "@/components/Comments";
 import RailTabs from "@/components/RailTabs";
 import Empty from "@/components/Empty";
 import { count, ago } from "@/lib/format";
+import { avatar, btn, mono, tag, skeleton, skLine, railList } from "@/lib/ui";
 import type { Video, Comment, TasteProfile, Paginated } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -75,7 +76,7 @@ export default async function WatchPage({
     const owner = video.owner;
 
     return (
-        <div className="watch">
+        <div className="grid grid-cols-[minmax(0,1fr)_372px] gap-7 items-start max-[1080px]:grid-cols-[minmax(0,1fr)]">
             <div>
                 {/* The only client component on the critical path. Everything
                     below it is server-rendered and ships no JS. */}
@@ -85,22 +86,24 @@ export default async function WatchPage({
                     rankPosition={pos ? Number(pos) : undefined}
                 />
 
-                <h1 className="watch-title">{video.title}</h1>
+                <h1 className="text-xl font-bold leading-[1.3] mt-[18px] mb-3 max-[720px]:text-[17px]">
+                    {video.title}
+                </h1>
 
-                <div className="watch-bar">
-                    <Link className="channel-chip" href={`/channel/${owner.username}`}>
-                        <img className="avatar" src={owner.avatar} alt="" />
+                <div className="flex items-center gap-3.5 flex-wrap pb-4 border-b border-line">
+                    <Link className="flex items-center gap-[10px]" href={`/channel/${owner.username}`}>
+                        <img className={avatar} src={owner.avatar} alt="" />
                         <span>
-                            <span className="channel-name">{owner.fullName || owner.username}</span>
+                            <span className="font-semibold text-sm">{owner.fullName || owner.username}</span>
                             <br />
-                            <span className="channel-subs">
+                            <span className="font-mono text-[11.5px] text-text-faint">
                                 {count(owner.subscribersCount ?? 0)} subscribers
                             </span>
                         </span>
                     </Link>
 
-                    <div className="watch-actions">
-                        <span className="btn mono" style={{ cursor: "default", fontSize: 12 }}>
+                    <div className="ml-auto flex gap-2 max-[720px]:ml-0 max-[720px]:w-full">
+                        <span className={btn + " " + mono} style={{ cursor: "default", fontSize: 12 }}>
                             {count(video.views ?? 0)} views · {ago(video.createdAt)}
                         </span>
                         <WatchActions video={video} />
@@ -109,19 +112,21 @@ export default async function WatchPage({
 
                 {user && <WhyPanel videoId={videoId} />}
 
-                <div className="description">{video.description}</div>
+                <div className="bg-surface border border-line rounded-md px-4 py-3.5 mt-4 text-[13.5px] whitespace-pre-wrap">
+                    {video.description}
+                </div>
 
                 {video.tags?.length > 0 && (
-                    <div className="tags">
+                    <div className="flex flex-wrap gap-1.5 mt-3">
                         {video.tags.map((t) => (
-                            <Link key={t} className="tag" href={`/search?q=${encodeURIComponent(t)}`}>
+                            <Link key={t} className={tag} href={`/search?q=${encodeURIComponent(t)}`}>
                                 #{t}
                             </Link>
                         ))}
                     </div>
                 )}
 
-                <Suspense fallback={<div className="skeleton sk-line" style={{ marginTop: 30 }} />}>
+                <Suspense fallback={<div className={skeleton + " " + skLine} style={{ marginTop: 30 }} />}>
                     <CommentSection videoId={videoId} />
                 </Suspense>
             </div>
@@ -134,7 +139,7 @@ export default async function WatchPage({
                         </Suspense>
                     }
                     profile={
-                        <Suspense fallback={<div className="skeleton sk-line" style={{ height: 90 }} />}>
+                        <Suspense fallback={<div className={skeleton + " " + skLine} style={{ height: 90 }} />}>
                             <ProfilePanel signedIn={Boolean(user)} />
                         </Suspense>
                     }
@@ -150,14 +155,14 @@ async function RelatedRail({ videoId }: { videoId: string }) {
 
     if (!related.length) {
         return (
-            <p style={{ color: "var(--text-faint)", fontSize: 13 }}>
+            <p className="text-text-faint text-[13px]">
                 No related videos yet. Run npm run jobs to build the similarity index.
             </p>
         );
     }
 
     return (
-        <div className="rail-list">
+        <div className={railList}>
             {related.map((r, i) => (
                 <VideoCard key={r._id} video={r} layout="rail" position={i} feedSource="related" />
             ))}
@@ -188,7 +193,7 @@ async function CommentSection({ videoId }: { videoId: string }) {
 
 function RailSkeleton() {
     return (
-        <div className="rail-list">
+        <div className={railList}>
             {Array.from({ length: 6 }).map((_, i) => (
                 <CardSkeleton key={i} layout="rail" />
             ))}

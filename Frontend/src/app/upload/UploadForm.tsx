@@ -3,6 +3,18 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api-client";
+import {
+    panelWide,
+    hDisplay,
+    notice,
+    noticeError,
+    field,
+    fieldLabel,
+    fieldInput,
+    fieldTextarea,
+    fieldHint,
+    btnPrimary,
+} from "@/lib/ui";
 
 const CATEGORIES = [
     "education", "music", "gaming", "news", "sports",
@@ -48,77 +60,76 @@ export default function UploadForm() {
     };
 
     return (
-        <div className="panel panel-wide">
-            <h1 className="h-display" style={{ fontSize: 22, marginBottom: 6 }}>
+        <div className={panelWide}>
+            <h1 className={hDisplay + " text-[22px] mb-1.5"}>
                 Upload a video
             </h1>
-            <p style={{ color: "var(--text-dim)", fontSize: 13, margin: "0 0 22px" }}>
+            <p className="text-text-dim text-[13px] m-0 mb-[22px]">
                 Tags drive content-based recommendations — a well-tagged video gets found on day
                 one, before it has any watch history.
             </p>
 
-            {error && <div className="notice notice-error">{error}</div>}
+            {error && <div className={notice + " " + noticeError}>{error}</div>}
 
             <form onSubmit={submit}>
-                <div className="field">
-                    <label htmlFor="vf">Video file</label>
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="vf">Video file</label>
                     <input
+                        className={fieldInput}
                         id="vf"
                         type="file"
                         accept="video/*"
                         onChange={(e) => setVideoFile(e.target.files?.[0] ?? null)}
                         required
                     />
-                    <p className="field-hint">MP4, WebM, MOV or MKV. Up to 500 MB.</p>
+                    <p className={fieldHint}>MP4, WebM, MOV or MKV. Up to 500 MB.</p>
                 </div>
-                <div className="field">
-                    <label htmlFor="ut">Title</label>
-                    <input id="ut" value={fields.title} onChange={set("title")} required />
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="ut">Title</label>
+                    <input className={fieldInput} id="ut" value={fields.title} onChange={set("title")} required />
                 </div>
-                <div className="field">
-                    <label htmlFor="ud">Description</label>
-                    <textarea id="ud" value={fields.description} onChange={set("description")} required />
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="ud">Description</label>
+                    <textarea className={fieldTextarea} id="ud" value={fields.description} onChange={set("description")} required />
                 </div>
-                <div className="field">
-                    <label htmlFor="utg">Tags</label>
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="utg">Tags</label>
                     <input
+                        className={fieldInput}
                         id="utg"
                         value={fields.tags}
                         onChange={set("tags")}
                         placeholder="react, tutorial, beginner"
                     />
-                    <p className="field-hint">Comma separated. Up to 25.</p>
+                    <p className={fieldHint}>Comma separated. Up to 25.</p>
                 </div>
-                <div className="field">
-                    <label htmlFor="uc">Category</label>
-                    <select id="uc" value={fields.category} onChange={set("category")}>
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="uc">Category</label>
+                    <select className={fieldInput} id="uc" value={fields.category} onChange={set("category")}>
                         {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
                     </select>
                 </div>
-                <div className="field">
-                    <label htmlFor="uv">Visibility</label>
-                    <select id="uv" value={fields.visibility} onChange={set("visibility")}>
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="uv">Visibility</label>
+                    <select className={fieldInput} id="uv" value={fields.visibility} onChange={set("visibility")}>
                         <option value="public">Public</option>
                         <option value="unlisted">Unlisted</option>
                         <option value="private">Private</option>
                     </select>
                 </div>
-                <div className="field">
-                    <label htmlFor="uth">Thumbnail</label>
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="uth">Thumbnail</label>
                     <input
+                        className={fieldInput}
                         id="uth"
                         type="file"
                         accept="image/*"
                         onChange={(e) => setThumbnail(e.target.files?.[0] ?? null)}
                     />
-                    <p className="field-hint">Optional — a poster frame is generated if you skip this.</p>
+                    <p className={fieldHint}>Optional — a poster frame is generated if you skip this.</p>
                 </div>
 
-                <button
-                    className="btn btn-primary"
-                    style={{ width: "100%", justifyContent: "center" }}
-                    disabled={busy}
-                >
+                <button className={btnPrimary + " w-full justify-center"} disabled={busy}>
                     {busy ? "Uploading" : "Publish"}
                 </button>
             </form>

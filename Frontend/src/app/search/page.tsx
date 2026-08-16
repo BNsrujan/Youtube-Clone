@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { serverApi, safe } from "@/lib/api-server";
 import VideoGrid, { GridSkeleton } from "@/components/VideoGrid";
 import Empty from "@/components/Empty";
+import { feedHead, hDisplay, eyebrow } from "@/lib/ui";
 import type { Paginated, Video } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -42,11 +43,11 @@ async function Results({ q }: { q: string }) {
 
     return (
         <>
-            <div className="feed-head">
-                <h1 className="h-display" style={{ fontSize: 20 }}>
+            <div className={feedHead}>
+                <h1 className={hDisplay + " text-xl"}>
                     Results for &ldquo;{q}&rdquo;
                 </h1>
-                <span className="eyebrow">{page.totalDocs} found</span>
+                <span className={eyebrow}>{page.totalDocs} found</span>
             </div>
 
             {page.docs.length === 0 ? (

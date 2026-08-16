@@ -54,7 +54,9 @@ export default async function RootLayout({
             <body>
                 <AuthProvider initialUser={user}>
                     <Header />
-                    <main className="shell app-body">{children}</main>
+                    <main className="max-w-shell mx-auto px-6 max-[720px]:px-3.5 pt-6 pb-20">
+                        {children}
+                    </main>
                 </AuthProvider>
             </body>
         </html>

@@ -26,14 +26,7 @@ export default function CategoryFilter() {
                 else next.delete("category");
                 startTransition(() => router.push(`/trending${next.toString() ? `?${next}` : ""}`));
             }}
-            style={{
-                marginLeft: "auto",
-                background: "var(--surface-2)",
-                border: "1px solid var(--line)",
-                borderRadius: 6,
-                padding: "6px 10px",
-                fontSize: 13,
-            }}
+            className="ml-auto bg-surface-2 border border-line rounded-md px-2.5 py-1.5 text-[13px]"
         >
             {CATEGORIES.map((c) => (
                 <option key={c} value={c}>{c || "All categories"}</option>

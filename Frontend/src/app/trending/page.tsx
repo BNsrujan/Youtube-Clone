@@ -4,6 +4,7 @@ import { serverApi, safe } from "@/lib/api-server";
 import VideoGrid, { GridSkeleton } from "@/components/VideoGrid";
 import CategoryFilter from "@/components/CategoryFilter";
 import Empty from "@/components/Empty";
+import { feedHead, hDisplay, eyebrow } from "@/lib/ui";
 import type { Video } from "@/types";
 
 export const metadata: Metadata = { title: "Trending · videotube" };
@@ -18,9 +19,9 @@ export default async function TrendingPage({
 
     return (
         <>
-            <div className="feed-head">
-                <h1 className="h-display">Trending</h1>
-                <span className="eyebrow">
+            <div className={feedHead}>
+                <h1 className={hDisplay + " text-[26px]"}>Trending</h1>
+                <span className={eyebrow}>
                     log₁₀(engagement) − age/12h · recomputed every 30 min
                 </span>
                 <CategoryFilter />

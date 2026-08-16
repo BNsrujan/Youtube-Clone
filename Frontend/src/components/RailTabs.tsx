@@ -13,13 +13,16 @@ export default function RailTabs({
 }) {
     const [tab, setTab] = useState<"related" | "profile">("related");
 
+    const railTab =
+        "bg-transparent border-0 border-b-2 border-transparent px-3 py-2 cursor-pointer font-mono text-[10.5px] tracking-[0.13em] uppercase text-text-faint aria-selected:text-text aria-selected:border-b-live";
+
     return (
         <>
-            <div className="rail-tabs" role="tablist">
+            <div className="flex gap-0.5 border-b border-line mb-3.5" role="tablist">
                 <button
                     role="tab"
                     aria-selected={tab === "related"}
-                    className="rail-tab"
+                    className={railTab}
                     onClick={() => setTab("related")}
                 >
                     Related
@@ -27,7 +30,7 @@ export default function RailTabs({
                 <button
                     role="tab"
                     aria-selected={tab === "profile"}
-                    className="rail-tab"
+                    className={railTab}
                     onClick={() => setTab("profile")}
                 >
                     Your profile

@@ -5,6 +5,7 @@ import { serverApi, safe, ServerApiError } from "@/lib/api-server";
 import VideoGrid, { GridSkeleton } from "@/components/VideoGrid";
 import Empty from "@/components/Empty";
 import { count } from "@/lib/format";
+import { hDisplay, mono } from "@/lib/ui";
 import type { User, Paginated, Video } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -43,16 +44,19 @@ export default async function ChannelPage({
     return (
         <>
             {channel.coverImage && (
-                <div className="cover" style={{ backgroundImage: `url(${channel.coverImage})` }} />
+                <div
+                    className="h-40 rounded-lg bg-cover bg-center border border-line mb-[18px]"
+                    style={{ backgroundImage: `url(${channel.coverImage})` }}
+                />
             )}
 
-            <div className="channel-head">
-                <img src={channel.avatar} alt="" />
+            <div className="flex items-center gap-4 mb-[30px] flex-wrap">
+                <img className="w-[72px] h-[72px] rounded-full object-cover" src={channel.avatar} alt="" />
                 <div>
-                    <h1 className="h-display" style={{ fontSize: 24 }}>
+                    <h1 className={hDisplay + " text-2xl"}>
                         {channel.fullName || channel.username}
                     </h1>
-                    <p className="mono" style={{ color: "var(--text-faint)", fontSize: 12, margin: "4px 0 0" }}>
+                    <p className={mono + " text-text-faint text-xs mt-1 mb-0"}>
                         @{channel.username} · {count(channel.subscribersCount ?? 0)} subscribers
                     </p>
                 </div>

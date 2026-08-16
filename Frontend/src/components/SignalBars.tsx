@@ -1,4 +1,5 @@
 import { SIGNAL_COLORS, SIGNAL_LABELS, SOURCE_COLORS, SOURCE_LABELS } from "@/lib/format";
+import { sigrow, sigrowK, sigbar, sigbarFill, sigrowV } from "@/lib/ui";
 import type { RecommendationBreakdown, CandidateSource } from "@/types";
 
 /**
@@ -25,7 +26,7 @@ export function SignalBreakdown({
 
     if (!rows.length) {
         return (
-            <p style={{ color: "var(--text-faint)", fontSize: 13, margin: "8px 0 0" }}>
+            <p className="text-text-faint text-[13px] mt-2 mb-0">
                 No personalised signals fired — this came from trending.
             </p>
         );
@@ -36,28 +37,29 @@ export function SignalBreakdown({
     return (
         <div>
             {rows.map(([key, value]) => (
-                <div className="sigrow" key={key}>
-                    <span className="sigrow-k">{SIGNAL_LABELS[key] ?? key}</span>
-                    <div className="sigbar">
+                <div className={sigrow} key={key}>
+                    <span className={sigrowK}>{SIGNAL_LABELS[key] ?? key}</span>
+                    <div className={sigbar}>
                         <span
+                            className={sigbarFill}
                             style={{
                                 width: `${(value / max) * 100}%`,
                                 background: SIGNAL_COLORS[key] ?? "var(--sig-diversity)",
                             }}
                         />
                     </div>
-                    <span className="sigrow-v">{value.toFixed(3)}</span>
+                    <span className={sigrowV}>{value.toFixed(3)}</span>
                 </div>
             ))}
 
             {total !== undefined && (
                 <div
-                    className="sigrow"
-                    style={{ borderTop: "1px solid var(--line)", marginTop: 6, paddingTop: 8 }}
+                    className={sigrow + " border-t border-line mt-1.5"}
+                    style={{ paddingTop: 8 }}
                 >
-                    <span className="sigrow-k" style={{ color: "var(--text)" }}>total</span>
+                    <span className={sigrowK} style={{ color: "var(--text)" }}>total</span>
                     <span />
-                    <span className="sigrow-v" style={{ color: "var(--text)" }}>
+                    <span className={sigrowV} style={{ color: "var(--text)" }}>
                         {total.toFixed(3)}
                     </span>
                 </div>
@@ -72,15 +74,20 @@ export function SourcePips({ sources = [] }: { sources?: CandidateSource[] }) {
     if (!unique.length) return null;
 
     return (
-        <div className="pips" title={unique.map((s) => SOURCE_LABELS[s] ?? s).join(" · ")}>
+        <div
+            className="flex items-center gap-1 mt-[7px]"
+            title={unique.map((s) => SOURCE_LABELS[s] ?? s).join(" · ")}
+        >
             {unique.slice(0, 4).map((s) => (
                 <span
                     key={s}
-                    className="pip"
+                    className="w-4 h-[3px] rounded-[2px]"
                     style={{ background: SOURCE_COLORS[s] ?? "var(--line-bright)" }}
                 />
             ))}
-            <span className="pip-label">{SOURCE_LABELS[unique[0]] ?? unique[0]}</span>
+            <span className="font-mono text-[10px] text-text-faint tracking-[0.04em] ml-[3px]">
+                {SOURCE_LABELS[unique[0]] ?? unique[0]}
+            </span>
         </div>
     );
 }

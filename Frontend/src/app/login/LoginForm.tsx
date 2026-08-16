@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { panel, hDisplay, notice, noticeError, field, fieldLabel, fieldInput, btnPrimary, linkAccent } from "@/lib/ui";
 
 export default function LoginForm() {
     const { login } = useAuth();
@@ -26,18 +27,19 @@ export default function LoginForm() {
     };
 
     return (
-        <div className="panel">
-            <h1 className="h-display" style={{ fontSize: 22, marginBottom: 6 }}>Sign in</h1>
-            <p style={{ color: "var(--text-dim)", fontSize: 13, margin: "0 0 22px" }}>
+        <div className={panel}>
+            <h1 className={hDisplay + " text-[22px] mb-1.5"}>Sign in</h1>
+            <p className="text-text-dim text-[13px] m-0 mb-[22px]">
                 Seeded accounts: seeduser1 … seeduser20 / Password123!
             </p>
 
-            {error && <div className="notice notice-error">{error}</div>}
+            {error && <div className={notice + " " + noticeError}>{error}</div>}
 
             <form onSubmit={submit}>
-                <div className="field">
-                    <label htmlFor="username">Username</label>
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="username">Username</label>
                     <input
+                        className={fieldInput}
                         id="username"
                         value={form.username}
                         onChange={(e) => setForm({ ...form, username: e.target.value })}
@@ -45,9 +47,10 @@ export default function LoginForm() {
                         required
                     />
                 </div>
-                <div className="field">
-                    <label htmlFor="password">Password</label>
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="password">Password</label>
                     <input
+                        className={fieldInput}
                         id="password"
                         type="password"
                         value={form.password}
@@ -56,17 +59,13 @@ export default function LoginForm() {
                         required
                     />
                 </div>
-                <button
-                    className="btn btn-primary"
-                    style={{ width: "100%", justifyContent: "center" }}
-                    disabled={busy}
-                >
+                <button className={btnPrimary + " w-full justify-center"} disabled={busy}>
                     {busy ? "Signing in" : "Sign in"}
                 </button>
             </form>
 
-            <p style={{ fontSize: 13, color: "var(--text-dim)", margin: "18px 0 0" }}>
-                No account? <Link href="/register" className="link-accent">Create one</Link>
+            <p className="text-[13px] text-text-dim mt-[18px] mb-0">
+                No account? <Link href="/register" className={linkAccent}>Create one</Link>
             </p>
         </div>
     );

@@ -604,5 +604,3 @@ This project is under active development. Contributions, issues, and feature req
 5. Open a Pull Request
 
 ---
-
-See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for this design in its original standalone document, and [`docs/README.md`](docs/README.md) for the backend-focused reference copy.

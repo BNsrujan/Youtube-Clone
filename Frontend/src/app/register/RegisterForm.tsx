@@ -5,6 +5,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/context/AuthContext";
+import {
+    panel,
+    hDisplay,
+    notice,
+    noticeError,
+    field,
+    fieldLabel,
+    fieldInput,
+    fieldHint,
+    btnPrimary,
+    linkAccent,
+} from "@/lib/ui";
 
 export default function RegisterForm() {
     const { login } = useAuth();
@@ -43,29 +55,30 @@ export default function RegisterForm() {
     };
 
     return (
-        <div className="panel">
-            <h1 className="h-display" style={{ fontSize: 22, marginBottom: 22 }}>
+        <div className={panel}>
+            <h1 className={hDisplay + " text-[22px] mb-[22px]"}>
                 Create an account
             </h1>
 
-            {error && <div className="notice notice-error">{error}</div>}
+            {error && <div className={notice + " " + noticeError}>{error}</div>}
 
             <form onSubmit={submit}>
-                <div className="field">
-                    <label htmlFor="fullName">Full name</label>
-                    <input id="fullName" value={fields.fullName} onChange={set("fullName")} required />
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="fullName">Full name</label>
+                    <input className={fieldInput} id="fullName" value={fields.fullName} onChange={set("fullName")} required />
                 </div>
-                <div className="field">
-                    <label htmlFor="ru">Username</label>
-                    <input id="ru" value={fields.username} onChange={set("username")} required />
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="ru">Username</label>
+                    <input className={fieldInput} id="ru" value={fields.username} onChange={set("username")} required />
                 </div>
-                <div className="field">
-                    <label htmlFor="re">Email</label>
-                    <input id="re" type="email" value={fields.email} onChange={set("email")} required />
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="re">Email</label>
+                    <input className={fieldInput} id="re" type="email" value={fields.email} onChange={set("email")} required />
                 </div>
-                <div className="field">
-                    <label htmlFor="rp">Password</label>
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="rp">Password</label>
                     <input
+                        className={fieldInput}
                         id="rp"
                         type="password"
                         value={fields.password}
@@ -74,29 +87,26 @@ export default function RegisterForm() {
                         required
                     />
                 </div>
-                <div className="field">
-                    <label htmlFor="av">Avatar</label>
+                <div className={field}>
+                    <label className={fieldLabel} htmlFor="av">Avatar</label>
                     <input
+                        className={fieldInput}
                         id="av"
                         type="file"
                         accept="image/*"
                         onChange={(e) => setAvatar(e.target.files?.[0] ?? null)}
                         required
                     />
-                    <p className="field-hint">JPEG, PNG or WebP.</p>
+                    <p className={fieldHint}>JPEG, PNG or WebP.</p>
                 </div>
 
-                <button
-                    className="btn btn-primary"
-                    style={{ width: "100%", justifyContent: "center" }}
-                    disabled={busy}
-                >
+                <button className={btnPrimary + " w-full justify-center"} disabled={busy}>
                     {busy ? "Creating account" : "Create account"}
                 </button>
             </form>
 
-            <p style={{ fontSize: 13, color: "var(--text-dim)", margin: "18px 0 0" }}>
-                Already have one? <Link href="/login" className="link-accent">Sign in</Link>
+            <p className="text-[13px] text-text-dim mt-[18px] mb-0">
+                Already have one? <Link href="/login" className={linkAccent}>Sign in</Link>
             </p>
         </div>
     );

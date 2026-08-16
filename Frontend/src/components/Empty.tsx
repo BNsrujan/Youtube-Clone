@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { empty, emptyH3, emptyP, btnPrimary } from "@/lib/ui";
 
 /** An empty screen is an invitation to act, not a dead end. */
 export default function Empty({
@@ -13,11 +14,11 @@ export default function Empty({
     actionHref?: string;
 }) {
     return (
-        <div className="empty">
-            <h3>{title}</h3>
-            {body && <p>{body}</p>}
+        <div className={empty}>
+            <h3 className={emptyH3}>{title}</h3>
+            {body && <p className={emptyP}>{body}</p>}
             {actionHref && actionLabel && (
-                <Link className="btn btn-primary" href={actionHref}>
+                <Link className={btnPrimary} href={actionHref}>
                     {actionLabel}
                 </Link>
             )}

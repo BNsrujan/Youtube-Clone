@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api-client";
 import { SignalBreakdown } from "./SignalBars";
+import { eyebrow, skeleton, skLine, tag } from "@/lib/ui";
 import type { WhyExplanation } from "@/types";
 
 /**
@@ -34,33 +35,37 @@ export default function WhyPanel({ videoId }: { videoId: string }) {
     }, [open, videoId, data]);
 
     return (
-        <div className="why">
-            <button className="why-head" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
-                <span className="eyebrow">Why you&apos;re seeing this</span>
-                <span className="mono" style={{ fontSize: 11, color: "var(--text-faint)" }}>
+        <div className="mt-4 bg-surface border border-line rounded-md overflow-hidden">
+            <button
+                className="flex items-center justify-between w-full bg-transparent border-none px-4 py-[11px] cursor-pointer text-left hover:bg-surface-2"
+                onClick={() => setOpen((o) => !o)}
+                aria-expanded={open}
+            >
+                <span className={eyebrow}>Why you&apos;re seeing this</span>
+                <span className="font-mono text-[11px] text-text-faint">
                     {open ? "hide −" : "show +"}
                 </span>
             </button>
 
             {open && (
-                <div className="why-body">
+                <div className="px-4 pt-1 pb-4 border-t border-line">
                     {error ? (
-                        <p style={{ fontSize: 13, color: "var(--text-dim)", margin: "8px 0 0" }}>
+                        <p className="text-[13px] text-text-dim mt-2 mb-0">
                             Scoring unavailable: {error}
                         </p>
                     ) : !data ? (
-                        <div className="skeleton sk-line" style={{ marginTop: 12 }} />
+                        <div className={skeleton + " " + skLine} style={{ marginTop: 12 }} />
                     ) : (
                         <>
                             <SignalBreakdown breakdown={data.breakdown} total={data.score} />
                             {data.matchedTags?.length > 0 && (
                                 <>
-                                    <p className="eyebrow" style={{ marginTop: 14 }}>
+                                    <p className={eyebrow + " mt-3.5"}>
                                         Matched against your profile
                                     </p>
-                                    <div className="tags">
+                                    <div className="flex flex-wrap gap-1.5 mt-3">
                                         {data.matchedTags.map((t) => (
-                                            <span key={t} className="tag">#{t}</span>
+                                            <span key={t} className={tag}>#{t}</span>
                                         ))}
                                     </div>
                                 </>

@@ -6,6 +6,10 @@ import { api } from "@/lib/api-client";
 import { bitrate as fmtBitrate, duration as fmtDuration } from "@/lib/format";
 import type { PlaybackManifest } from "@/types";
 
+const telCell = "px-3.5 py-2 border-r border-line flex flex-col gap-0.5 whitespace-nowrap shrink-0 last:border-r-0";
+const telK = "text-[9px] tracking-[0.13em] uppercase text-text-faint";
+const telV = "font-semibold [font-variant-numeric:tabular-nums]";
+
 /**
  * The player. Necessarily a Client Component — it owns a media element, a
  * bitrate algorithm, and a heartbeat timer, none of which exist on the server.
@@ -253,8 +257,8 @@ export default function VideoPlayer({
     // -------------------------------------------------------------- render
     if (error) {
         return (
-            <div className="stage" style={{ display: "grid", placeItems: "center" }}>
-                <p style={{ margin: 0, padding: 30, color: "var(--text-dim)", textAlign: "center" }}>
+            <div className="bg-black border border-line rounded-t-lg overflow-hidden aspect-video grid place-items-center">
+                <p className="m-0 p-[30px] text-text-dim text-center">
                     {error}
                 </p>
             </div>
@@ -266,29 +270,41 @@ export default function VideoPlayer({
 
     return (
         <>
-            <div className="stage">
-                <video ref={videoRef} controls playsInline onTimeUpdate={handleTimeUpdate} />
+            <div className="bg-black border border-line rounded-t-lg overflow-hidden aspect-video">
+                <video
+                    className="w-full h-full block bg-black"
+                    ref={videoRef}
+                    controls
+                    playsInline
+                    onTimeUpdate={handleTimeUpdate}
+                />
             </div>
 
-            <div className="telemetry" aria-label="Playback telemetry">
-                <div className="tel-cell">
-                    <span className="tel-k">Rendition</span>
-                    <span className="tel-v" style={{ color: "var(--sig-engagement)" }}>
+            <div
+                className="flex items-stretch bg-surface border border-t-0 border-line rounded-b-lg font-mono text-[11.5px] overflow-x-auto"
+                aria-label="Playback telemetry"
+            >
+                <div className={telCell}>
+                    <span className={telK}>Rendition</span>
+                    <span className={telV} style={{ color: "var(--sig-engagement)" }}>
                         {active ? `${active.height}p` : "—"}
                         {telemetry.auto && <span style={{ color: "var(--text-faint)" }}> auto</span>}
                     </span>
                 </div>
 
-                <div className="tel-cell">
-                    <span className="tel-k">Ladder</span>
-                    <div className="ladder" role="img" aria-label="Bitrate ladder position">
+                <div className={telCell}>
+                    <span className={telK}>Ladder</span>
+                    <div className="flex items-end gap-[3px] h-[17px]" role="img" aria-label="Bitrate ladder position">
                         {telemetry.levels
                             .map((l, i) => ({ ...l, i }))
                             .sort((a, b) => a.height - b.height)
                             .map((l) => (
                                 <div
                                     key={l.i}
-                                    className={`rung${l.i === telemetry.level ? " on" : ""}`}
+                                    className={
+                                        "w-[7px] rounded-[1px] transition-colors duration-[250ms] " +
+                                        (l.i === telemetry.level ? "bg-sig-engagement" : "bg-line-bright")
+                                    }
                                     style={{ height: `${6 + (l.height / 1080) * 11}px` }}
                                     title={`${l.height}p · ${fmtBitrate(l.bitrate)}`}
                                 />
@@ -296,19 +312,19 @@ export default function VideoPlayer({
                     </div>
                 </div>
 
-                <div className="tel-cell">
-                    <span className="tel-k">Throughput</span>
-                    <span className="tel-v">{fmtBitrate(telemetry.bandwidth)}</span>
+                <div className={telCell}>
+                    <span className={telK}>Throughput</span>
+                    <span className={telV}>{fmtBitrate(telemetry.bandwidth)}</span>
                 </div>
 
-                <div className="tel-cell">
-                    <span className="tel-k">Buffer</span>
-                    <span className="tel-v">{telemetry.buffer.toFixed(1)}s</span>
+                <div className={telCell}>
+                    <span className={telK}>Buffer</span>
+                    <span className={telV}>{telemetry.buffer.toFixed(1)}s</span>
                 </div>
 
-                <div className="tel-cell">
-                    <span className="tel-k">Watched</span>
-                    <span className="tel-v">
+                <div className={telCell}>
+                    <span className={telK}>Watched</span>
+                    <span className={telV}>
                         {(watchRatio * 100).toFixed(0)}%
                         <span
                             style={{
@@ -322,16 +338,16 @@ export default function VideoPlayer({
                 </div>
 
                 {manifest && manifest.resumeAt > 0 && (
-                    <div className="tel-cell">
-                        <span className="tel-k">Resumed</span>
-                        <span className="tel-v">{fmtDuration(manifest.resumeAt)}</span>
+                    <div className={telCell}>
+                        <span className={telK}>Resumed</span>
+                        <span className={telV}>{fmtDuration(manifest.resumeAt)}</span>
                     </div>
                 )}
 
-                <div className="tel-cell grow">
-                    <span className="tel-k">Quality</span>
+                <div className="flex-1 min-w-0 px-3.5 py-2 border-r border-line flex flex-col items-end justify-center gap-0.5 whitespace-nowrap last:border-r-0">
+                    <span className={telK}>Quality</span>
                     <select
-                        className="quality-select"
+                        className="bg-surface-2 border border-line rounded px-[5px] py-px text-[11px] font-mono"
                         value={telemetry.auto ? -1 : telemetry.level}
                         onChange={(e) => setQuality(Number(e.target.value))}
                         aria-label="Video quality"
