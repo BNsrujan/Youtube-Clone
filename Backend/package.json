@@ -6,6 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config --experimental-json-modules src/index.js",
+    "build": "find src -name '*.js' -exec node --check {} +",
     "start": "node -r dotenv/config src/index.js",
     "seed": "node -r dotenv/config src/scripts/seed.js",
     "jobs": "node -r dotenv/config src/jobs/runJobs.js all",
