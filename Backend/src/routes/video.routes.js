@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from "express";
 import {
     deleteVideo,
     getAllVideos,
@@ -6,37 +6,38 @@ import {
     publishAVideo,
     togglePublishStatus,
     updateVideo,
-} from "../controllers/video.controller.js"
-import {verifyJWT} from "../middlewares/auth.middleware.js"
-import {upload} from "../middlewares/multer.middleware.js"
+} from "../controllers/video.controller.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { optionalAuth } from "../middlewares/optionalAuth.middleware.js";
+import { upload } from "../middlewares/multer.middleware.js";
+import { uploadLimiter } from "../middlewares/rateLimit.middleware.js";
 
 const router = Router();
-router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
 
+/**
+ * The original file applied verifyJWT to every route, which meant a
+ * logged-out visitor could not browse or watch anything — not how a video
+ * platform works. Reads are public; writes require auth.
+ */
 router
     .route("/")
-    .get(getAllVideos)
+    .get(optionalAuth, getAllVideos)
     .post(
+        verifyJWT,
+        uploadLimiter,
         upload.fields([
-            {
-                name: "videoFile",
-                maxCount: 1,
-            },
-            {
-                name: "thumbnail",
-                maxCount: 1,
-            },
-            
+            { name: "videoFile", maxCount: 1 },
+            { name: "thumbnail", maxCount: 1 },
         ]),
         publishAVideo
     );
 
 router
     .route("/:videoId")
-    .get(getVideoById)
-    .delete(deleteVideo)
-    .patch(upload.single("thumbnail"), updateVideo);
+    .get(optionalAuth, getVideoById)
+    .delete(verifyJWT, deleteVideo)
+    .patch(verifyJWT, upload.single("thumbnail"), updateVideo);
 
-router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
+router.route("/toggle/publish/:videoId").patch(verifyJWT, togglePublishStatus);
 
-export default router
+export default router;

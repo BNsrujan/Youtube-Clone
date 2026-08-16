@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 760" width="980" height="760" font-family="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <defs>
+    <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#64748b"/>
+    </marker>
+    <marker id="a2p" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/>
+    </marker>
+  </defs>
+
+  <rect width="980" height="760" fill="#ffffff"/>
+
+  <text x="30" y="40" font-size="21" font-weight="700" fill="#0f172a">Recommendation engine — two-stage pipeline</text>
+  <text x="30" y="62" font-size="13" fill="#64748b">Scoring every video per request is O(catalogue). Retrieve cheaply, then rank expensively on the shortlist.</text>
+
+  <!-- ===== STAGE 1 ===== -->
+  <rect x="30" y="86" width="590" height="290" rx="8" fill="#faf5ff" stroke="#e9d5ff"/>
+  <text x="46" y="108" font-size="11" font-weight="700" fill="#6b21a8" letter-spacing="0.8">STAGE 1 · CANDIDATE GENERATION — five parallel sources, ~200 candidates</text>
+
+  <rect x="48" y="122" width="168" height="72" rx="6" fill="#ffffff" stroke="#c4b5fd"/>
+  <text x="60" y="141" font-size="11.5" font-weight="700" fill="#0f172a">Collaborative</text>
+  <text x="60" y="157" font-size="9.5" fill="#64748b">"people who watched X</text>
+  <text x="60" y="169" font-size="9.5" fill="#64748b">also watched Y"</text>
+  <text x="60" y="185" font-size="9" fill="#7c3aed">covers: active users</text>
+
+  <rect x="228" y="122" width="168" height="72" rx="6" fill="#ffffff" stroke="#c4b5fd"/>
+  <text x="240" y="141" font-size="11.5" font-weight="700" fill="#0f172a">Content-based</text>
+  <text x="240" y="157" font-size="9.5" fill="#64748b">tags you reliably</text>
+  <text x="240" y="169" font-size="9.5" fill="#64748b">finish</text>
+  <text x="240" y="185" font-size="9" fill="#7c3aed">covers: new users + new videos</text>
+
+  <rect x="408" y="122" width="168" height="72" rx="6" fill="#ffffff" stroke="#c4b5fd"/>
+  <text x="420" y="141" font-size="11.5" font-weight="700" fill="#0f172a">Subscriptions</text>
+  <text x="420" y="157" font-size="9.5" fill="#64748b">recent uploads from</text>
+  <text x="420" y="169" font-size="9.5" fill="#64748b">channels you follow</text>
+  <text x="420" y="185" font-size="9" fill="#7c3aed">covers: explicit intent</text>
+
+  <rect x="48" y="206" width="168" height="72" rx="6" fill="#ffffff" stroke="#c4b5fd"/>
+  <text x="60" y="225" font-size="11.5" font-weight="700" fill="#0f172a">Trending</text>
+  <text x="60" y="241" font-size="9.5" fill="#64748b">time-decayed</text>
+  <text x="60" y="253" font-size="9.5" fill="#64748b">popularity</text>
+  <text x="60" y="269" font-size="9" fill="#7c3aed">covers: cold start</text>
+
+  <rect x="228" y="206" width="168" height="72" rx="6" fill="#fffbeb" stroke="#fcd34d"/>
+  <text x="240" y="225" font-size="11.5" font-weight="700" fill="#0f172a">Exploration</text>
+  <text x="240" y="241" font-size="9.5" fill="#64748b">random off-profile</text>
+  <text x="240" y="253" font-size="9.5" fill="#64748b">categories</text>
+  <text x="240" y="269" font-size="9" fill="#b45309">covers: filter bubble, new creators</text>
+
+  <rect x="408" y="206" width="168" height="72" rx="6" fill="#f1f5f9" stroke="#cbd5e1"/>
+  <text x="492" y="230" font-size="11.5" font-weight="700" fill="#0f172a" text-anchor="middle">Merge + dedupe</text>
+  <text x="492" y="248" font-size="9.5" fill="#64748b" text-anchor="middle">drop already-watched</text>
+  <text x="492" y="263" font-size="9.5" fill="#64748b" text-anchor="middle">multi-source hits get</text>
+  <text x="492" y="275" font-size="9.5" fill="#64748b" text-anchor="middle">an agreement bonus</text>
+
+  <line x1="132" y1="194" x2="132" y2="200" stroke="#a78bfa" stroke-width="1.4"/>
+  <line x1="312" y1="194" x2="312" y2="200" stroke="#a78bfa" stroke-width="1.4"/>
+  <path d="M 492 194 L 492 200" stroke="#a78bfa" stroke-width="1.4"/>
+  <path d="M 216 242 L 224 242" stroke="#a78bfa" stroke-width="1.4"/>
+  <path d="M 396 242 L 404 242" stroke="#a78bfa" stroke-width="1.4" marker-end="url(#a2p)"/>
+
+  <text x="46" y="300" font-size="10" fill="#6b21a8" font-weight="600">Recall matters here, not precision — a video the shortlist misses can never be recommended.</text>
+  <text x="46" y="318" font-size="10" fill="#64748b">Each source answers a different question and covers a case the others miss.</text>
+
+  <rect x="46" y="330" width="558" height="34" rx="5" fill="#ffffff" stroke="#e9d5ff"/>
+  <text x="58" y="345" font-size="9.5" fill="#475569" font-weight="600">Collaborative similarity:  sim(A,B) = |users(A) ∩ users(B)| / √( |users(A)| × |users(B)| )</text>
+  <text x="58" y="358" font-size="9" fill="#7c3aed">That denominator is the whole trick — without it a viral video is "similar" to everything.</text>
+
+  <!-- ===== OFFLINE ===== -->
+  <rect x="640" y="86" width="310" height="290" rx="8" fill="#f0fdf4" stroke="#bbf7d0"/>
+  <text x="656" y="108" font-size="11" font-weight="700" fill="#166534" letter-spacing="0.8">OFFLINE JOBS — never on the request path</text>
+
+  <rect x="658" y="122" width="274" height="56" rx="6" fill="#ffffff" stroke="#86efac"/>
+  <text x="670" y="141" font-size="11.5" font-weight="700" fill="#0f172a">Similarity matrix</text>
+  <text x="670" y="157" font-size="9.5" fill="#64748b">nightly 03:00 · top-50 neighbours/video</text>
+  <text x="670" y="170" font-size="9.5" fill="#16a34a">O(n²) offline → single indexed read online</text>
+
+  <rect x="658" y="188" width="274" height="56" rx="6" fill="#ffffff" stroke="#86efac"/>
+  <text x="670" y="207" font-size="11.5" font-weight="700" fill="#0f172a">Trending scores</text>
+  <text x="670" y="223" font-size="9.5" fill="#64748b">every 30 min · 72h window</text>
+  <text x="670" y="236" font-size="9.5" fill="#16a34a">log₁₀(engagement) − ageHours/12</text>
+
+  <rect x="658" y="254" width="274" height="56" rx="6" fill="#ffffff" stroke="#86efac"/>
+  <text x="670" y="273" font-size="11.5" font-weight="700" fill="#0f172a">Taste profiles</text>
+  <text x="670" y="289" font-size="9.5" fill="#64748b">nightly full rebuild + live increments</text>
+  <text x="670" y="302" font-size="9.5" fill="#16a34a">tag weights, 30-day half-life</text>
+
+  <rect x="658" y="320" width="274" height="44" rx="6" fill="#ffffff" stroke="#86efac"/>
+  <text x="670" y="338" font-size="11.5" font-weight="700" fill="#0f172a">Stats refresh</text>
+  <text x="670" y="354" font-size="9.5" fill="#64748b">reconciles denormalised counters</text>
+
+  <path d="M 655 150 L 620 150" stroke="#22c55e" stroke-width="1.6" marker-end="url(#a2)" fill="none"/>
+  <path d="M 655 216 L 630 216 L 630 242 L 220 242" stroke="#22c55e" stroke-width="1.4" fill="none" opacity="0.5"/>
+
+  <!-- ===== STAGE 2 ===== -->
+  <rect x="30" y="392" width="590" height="256" rx="8" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="46" y="414" font-size="11" font-weight="700" fill="#1e40af" letter-spacing="0.8">STAGE 2 · RANKING — seven weighted signals, then diversify</text>
+
+  <!-- weight bars -->
+  <text x="48" y="436" font-size="10" fill="#475569">Content affinity</text>
+  <rect x="160" y="427" width="180" height="12" rx="3" fill="#2563eb"/>
+  <text x="348" y="436" font-size="9.5" fill="#1e40af" font-weight="600">0.30</text>
+  <text x="392" y="436" font-size="9" fill="#94a3b8">tag overlap with your profile</text>
+
+  <text x="48" y="454" font-size="10" fill="#475569">Collaborative</text>
+  <rect x="160" y="445" width="150" height="12" rx="3" fill="#3b82f6"/>
+  <text x="348" y="454" font-size="9.5" fill="#1e40af" font-weight="600">0.25</text>
+  <text x="392" y="454" font-size="9" fill="#94a3b8">co-watch neighbour strength</text>
+
+  <text x="48" y="472" font-size="10" fill="#475569">Engagement</text>
+  <rect x="160" y="463" width="90" height="12" rx="3" fill="#60a5fa"/>
+  <text x="348" y="472" font-size="9.5" fill="#1e40af" font-weight="600">0.15</text>
+  <text x="392" y="472" font-size="9" fill="#94a3b8">watch ratio + Wilson-bounded likes</text>
+
+  <text x="48" y="490" font-size="10" fill="#475569">Freshness</text>
+  <rect x="160" y="481" width="72" height="12" rx="3" fill="#93c5fd"/>
+  <text x="348" y="490" font-size="9.5" fill="#1e40af" font-weight="600">0.12</text>
+  <text x="392" y="490" font-size="9" fill="#94a3b8">14-day half-life</text>
+
+  <text x="48" y="508" font-size="10" fill="#475569">Subscription</text>
+  <rect x="160" y="499" width="60" height="12" rx="3" fill="#bfdbfe"/>
+  <text x="348" y="508" font-size="9.5" fill="#1e40af" font-weight="600">0.10</text>
+
+  <text x="48" y="526" font-size="10" fill="#475569">Creator affinity</text>
+  <rect x="160" y="517" width="30" height="12" rx="3" fill="#dbeafe"/>
+  <text x="348" y="526" font-size="9.5" fill="#1e40af" font-weight="600">0.05</text>
+
+  <text x="48" y="544" font-size="10" fill="#475569">Multi-source</text>
+  <rect x="160" y="535" width="18" height="12" rx="3" fill="#eff6ff" stroke="#bfdbfe"/>
+  <text x="348" y="544" font-size="9.5" fill="#1e40af" font-weight="600">0.03</text>
+
+  <line x1="46" y1="558" x2="604" y2="558" stroke="#bfdbfe" stroke-width="1"/>
+
+  <text x="46" y="578" font-size="11" font-weight="700" fill="#0f172a">Diversification (greedy re-rank)</text>
+  <text x="46" y="596" font-size="10" fill="#475569">adjusted = score × (1 − 0.35)^(times creator seen) × (1 − 0.18)^(times category seen)</text>
+  <text x="46" y="614" font-size="9.5" fill="#64748b">A creator's 2nd video must score 54% higher to hold position; the 3rd, 137% higher.</text>
+  <text x="46" y="632" font-size="9.5" fill="#1e40af" font-style="italic">Without this the feed is eight near-identical videos from two channels — correct scores, unusable page.</text>
+
+  <!-- ===== FEEDBACK LOOP ===== -->
+  <rect x="640" y="392" width="310" height="256" rx="8" fill="#fef2f2" stroke="#fecaca"/>
+  <text x="656" y="414" font-size="11" font-weight="700" fill="#991b1b" letter-spacing="0.8">THE LOOP — and why it needs brakes</text>
+
+  <rect x="700" y="428" width="190" height="34" rx="5" fill="#ffffff" stroke="#fca5a5"/>
+  <text x="795" y="449" font-size="10.5" fill="#0f172a" text-anchor="middle">Feed shows what profile likes</text>
+
+  <rect x="700" y="480" width="190" height="34" rx="5" fill="#ffffff" stroke="#fca5a5"/>
+  <text x="795" y="501" font-size="10.5" fill="#0f172a" text-anchor="middle">User watches it</text>
+
+  <rect x="700" y="532" width="190" height="34" rx="5" fill="#ffffff" stroke="#fca5a5"/>
+  <text x="795" y="553" font-size="10.5" fill="#0f172a" text-anchor="middle">Profile sharpens</text>
+
+  <line x1="795" y1="462" x2="795" y2="476" stroke="#ef4444" stroke-width="1.6" marker-end="url(#a2)"/>
+  <line x1="795" y1="514" x2="795" y2="528" stroke="#ef4444" stroke-width="1.6" marker-end="url(#a2)"/>
+  <path d="M 700 549 Q 668 549 668 445 L 696 445" fill="none" stroke="#ef4444" stroke-width="1.6" marker-end="url(#a2)"/>
+  <text x="656" y="500" font-size="9" fill="#dc2626" transform="rotate(-90 656 500)" text-anchor="middle">converges</text>
+
+  <text x="656" y="592" font-size="10" font-weight="700" fill="#166534">Three deliberate counterweights:</text>
+  <text x="656" y="610" font-size="9.5" fill="#475569">1 · exploration candidates every request</text>
+  <text x="656" y="625" font-size="9.5" fill="#475569">2 · creator + category diversity penalties</text>
+  <text x="656" y="640" font-size="9.5" fill="#475569">3 · diversityScore (entropy) triggers more exploration</text>
+
+  <!-- ===== OUTPUT ===== -->
+  <rect x="30" y="664" width="920" height="72" rx="8" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="46" y="686" font-size="11" font-weight="700" fill="#475569" letter-spacing="0.8">OUTPUT</text>
+  <text x="46" y="708" font-size="11" fill="#0f172a">GET /recommendations/feed  →  ranked slate + <tspan font-family="ui-monospace, monospace" font-size="10.5" fill="#7c3aed">_recommendation.sources</tspan></text>
+  <text x="46" y="726" font-size="10" fill="#64748b">GET /recommendations/why/:videoId  →  full per-signal breakdown. A recommender you cannot interrogate is one you cannot debug.</text>
+
+  <rect x="600" y="678" width="336" height="46" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="614" y="696" font-size="10" fill="#475569" font-weight="600">Cold start:</text>
+  <text x="690" y="696" font-size="10" fill="#64748b">anonymous or &lt;3 interactions → trending + freshness</text>
+  <text x="614" y="713" font-size="10" fill="#475569" font-weight="600">New video:</text>
+  <text x="690" y="713" font-size="10" fill="#64748b">reachable by tags on day zero, before any watch data</text>
+</svg>

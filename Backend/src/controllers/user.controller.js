@@ -52,7 +52,7 @@ const registerUser = asyncHandler(async (req, res) => {
     }
 
     // Get the local paths of the avatar and cover image files (if any)
-    const avatarLocalPath = req.files?.avatar[0]?.path;
+    const avatarLocalPath = req.files?.avatar?.[0]?.path;
     let coverImageLocalPath;
     if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
         coverImageLocalPath = req.files.coverImage[0].path
@@ -65,7 +65,9 @@ const registerUser = asyncHandler(async (req, res) => {
 
     // Upload avatar and cover image to Cloudinary
     const avatar = await uploadOnCloudinary(avatarLocalPath)
-    const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+    const coverImage = coverImageLocalPath
+        ? await uploadOnCloudinary(coverImageLocalPath)
+        : null
 
     // Ensure avatar upload was successful
     if (!avatar) {
@@ -131,14 +133,18 @@ const loginUser = asyncHandler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        // secure:true requires HTTPS; hardcoding it breaks local http dev,
+        // where the browser silently drops the cookie and every request 401s.
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        maxAge: 10 * 24 * 60 * 60 * 1000
     }
 
     // Return response with tokens and user data, and set cookies
     return res
-        .cookie("refreshToken", refreshToken, options)
         .status(200)
         .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
         .json(
             new ApiResponse(
                 200,
@@ -166,7 +172,11 @@ const logoutUser = asyncHandler(async (req, res) => {
 
     const options = {
         httpOnly: true,
-        secure: true
+        // secure:true requires HTTPS; hardcoding it breaks local http dev,
+        // where the browser silently drops the cookie and every request 401s.
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+        maxAge: 10 * 24 * 60 * 60 * 1000
     }
 
     // Clear cookies and send success response
@@ -210,7 +220,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         }
 
         // Generate new access and refresh tokens
-        const { accessToken, newRefreshToken } = await generateAccessAndRefereshTokens(user._id)
+        const { accessToken, refreshToken: newRefreshToken } = await generateAccessAndRefereshTokens(user._id)
 
         // Set new tokens as cookies and return them
         return res
@@ -398,7 +408,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
                 },
                 isSubscribed: { // Checks if the authenticated user is subscribed to this channel
                     $cond: {
-                        if: { $in: [req.user?._id, "$subscribers.r"] }, // Check if user ID exists in subscriber list
+                        if: { $in: [req.user?._id, "$subscribers.subscriber"] }, // Check if user ID exists in subscriber list
                         then: true,
                         else: false
                     }
@@ -481,7 +491,7 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         .json(
             new ApiResponse(
                 200,
-                user[0].watchHistory, // Return the user's watch history
+                user[0]?.watchHistory || [], // empty array beats a TypeError
                 "Watch history fetched successfully"
             )
         )
