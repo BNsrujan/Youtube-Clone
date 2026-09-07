@@ -38,22 +38,32 @@ export async function uploadAndTranscode(localPath, { folder = "videos" } = {}) 
         throw new Error("Source file not found");
     }
 
+    // Eager transcoding pre-renders the whole ladder at upload time and is
+    // billed per rendition. Cloudinary also builds the same sp_hd ladder
+    // on-the-fly on first request, which costs nothing until someone actually
+    // watches — a material difference on a metered plan. Eager is therefore
+    // opt-in: turn it on when you want the first play to be warm.
+    const eagerEnabled = process.env.CLOUDINARY_EAGER_TRANSCODE === "true";
+
     try {
         const result = await cloudinary.uploader.upload(localPath, {
             resource_type: "video",
             folder,
-            // Only transcode rungs at or below the source height — upscaling
-            // burns CPU and bandwidth to produce a worse picture.
-            eager: RENDITION_LADDER.map((r) => ({
-                streaming_profile: `hd`,
-                format: "m3u8",
-                height: r.height,
-                bit_rate: r.bitrate,
-                crop: "limit",
-            })),
-            eager_async: true,
-            // Poster frame from 10% in — the first frame is usually black.
-            eager_notification_url: process.env.TRANSCODE_WEBHOOK_URL,
+            ...(eagerEnabled
+                ? {
+                      // Only transcode rungs at or below the source height —
+                      // upscaling burns CPU and bandwidth for a worse picture.
+                      eager: RENDITION_LADDER.map((r) => ({
+                          streaming_profile: `hd`,
+                          format: "m3u8",
+                          height: r.height,
+                          bit_rate: r.bitrate,
+                          crop: "limit",
+                      })),
+                      eager_async: true,
+                      eager_notification_url: process.env.TRANSCODE_WEBHOOK_URL,
+                  }
+                : {}),
         });
 
         return {
@@ -169,14 +179,20 @@ export function generateMasterManifest(renditions, { basePath = "" } = {}) {
 export function signPlaybackUrl(publicId, { ttlSeconds = 3600 } = {}) {
     const expiresAt = Math.floor(Date.now() / 1000) + ttlSeconds;
 
+    // `type` must match how the asset was stored. uploadAndTranscode() stores
+    // with the default delivery type ("upload"), so signing an "authenticated"
+    // URL produced a valid signature pointing at a path that does not exist —
+    // every manifest 404'd with "Resource not found". Only assets deliberately
+    // uploaded as authenticated get that path.
+    const authenticated = process.env.CLOUDINARY_DELIVERY_TYPE === "authenticated";
+
     return cloudinary.url(publicId, {
         resource_type: "video",
         format: "m3u8",
         streaming_profile: "hd",
         secure: true,
         sign_url: true,
-        type: "authenticated",
-        expires_at: expiresAt,
+        ...(authenticated ? { type: "authenticated", expires_at: expiresAt } : {}),
     });
 }
 
