@@ -66,6 +66,7 @@ const CONCURRENCY = Number(args.concurrency ?? 2);
 const DRY_RUN = Boolean(args["dry-run"]);
 const FRESH = Boolean(args.fresh);
 const SOURCE = String(args.source ?? "auto"); // pexels | archive | wikimedia | auto
+const DROP_PLACEHOLDERS = Boolean(args["drop-placeholders"]);
 
 const CLOUD_FOLDER = "videotube/seed";
 const TEMP_DIR = "./public/temp";
@@ -135,7 +136,16 @@ async function runPool(items, limit, worker) {
             try {
                 results.push(await worker(items[index], index));
             } catch (err) {
-                console.warn(`   ! ${err.message}`);
+                // Undici surfaces the real reason on `cause`; err.message is
+                // often just "fetch failed" or undefined on its own.
+                const reason =
+                    err?.message ||
+                    err?.cause?.message ||
+                    err?.cause?.code ||
+                    err?.code ||
+                    String(err);
+                const detail = err?.cause?.code && err.cause.code !== reason ? ` (${err.cause.code})` : "";
+                console.warn(`   ! ${items[index]?.title?.slice(0, 48) ?? "item"}: ${reason}${detail}`);
             }
         }
     });
@@ -404,14 +414,29 @@ async function downloadToTemp(candidate) {
     // upload.wikimedia.org rate-limits as aggressively as the API does, and a
     // 429 here is transient — retrying costs one wait, giving up costs an asset.
     let res;
+    let lastError;
     for (let attempt = 0; attempt < 5; attempt++) {
-        res = await fetchWithTimeout(candidate.url, { timeoutMs: 90_000 });
+        try {
+            res = await fetchWithTimeout(candidate.url, { timeoutMs: 90_000 });
+        } catch (err) {
+            // A thrown fetch (ECONNRESET, ENOTFOUND, socket hang-up) is just
+            // as transient as a 429 and was previously fatal for the item.
+            lastError = err;
+            res = null;
+            await sleep(2000 * 2 ** attempt + Math.random() * 500);
+            continue;
+        }
         if (res.ok) break;
         if (res.status !== 429 && res.status !== 503) break;
         const wait = Number(res.headers.get("retry-after") || 0) * 1000 || 2000 * 2 ** attempt;
         await sleep(wait + Math.random() * 500);
     }
-    if (!res.ok) throw new Error(`download ${res.status} for ${candidate.title}`);
+
+    if (!res) {
+        const cause = lastError?.cause?.code || lastError?.message || "network error";
+        throw new Error(`download failed (${cause})`);
+    }
+    if (!res.ok) throw new Error(`download ${res.status}`);
 
     const declared = Number(res.headers.get("content-length") || 0);
     if (declared && declared / 1048576 > MAX_MB) {
@@ -500,18 +525,29 @@ async function uploadAsset(candidate) {
 
 /** Reuse assets already sitting in the Cloudinary folder from a previous run. */
 async function existingAssets() {
-    try {
-        const res = await cloudinary.api.resources({
-            resource_type: "video",
-            type: "upload",
-            prefix: CLOUD_FOLDER,
-            max_results: 200,
-            context: true,
-        });
-        return res.resources ?? [];
-    } catch {
-        return [];
+    // Retry rather than fall through to []: an empty list here means the run
+    // re-uploads everything it already has, quietly doubling storage spend.
+    for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+            const res = await cloudinary.api.resources({
+                resource_type: "video",
+                type: "upload",
+                prefix: CLOUD_FOLDER,
+                max_results: 200,
+                context: true,
+            });
+            return res.resources ?? [];
+        } catch (err) {
+            if (attempt === 2) {
+                throw new Error(
+                    `could not list existing assets (${err.message}); ` +
+                    `refusing to upload duplicates`
+                );
+            }
+            await sleep(1500 * (attempt + 1));
+        }
     }
+    return [];
 }
 
 // ---- 3. build the database ---------------------------------------------
@@ -529,16 +565,28 @@ async function ensureUsers(count) {
     const users = [];
     for (const [username, fullName] of CHANNEL_NAMES.slice(0, count)) {
         let user = await User.findOne({ username });
+
         if (!user) {
-            user = await User.create({
-                username,
-                email: `${username}@seed.local`,
-                fullName,
-                avatar: `https://api.dicebear.com/7.x/shapes/svg?seed=${username}`,
-                coverImage: `https://picsum.photos/seed/${username}-cover/1600/400`,
-                password: "Password123!",
-            });
+            try {
+                user = await User.create({
+                    username,
+                    email: `${username}@seed.local`,
+                    fullName,
+                    avatar: `https://api.dicebear.com/7.x/shapes/svg?seed=${username}`,
+                    coverImage: `https://picsum.photos/seed/${username}-cover/1600/400`,
+                    password: "Password123!",
+                });
+            } catch (err) {
+                // findOne-then-create is not atomic. Two seeders running at
+                // once (or a re-run racing a previous one) both see "absent"
+                // and both insert; the loser gets E11000. The row it wanted
+                // now exists, which is all this function actually needs.
+                if (err?.code !== 11000) throw err;
+                user = await User.findOne({ username });
+                if (!user) throw err;
+            }
         }
+
         user._preferredCategories = pick(Object.keys(CATEGORY_TERMS), rand(1, 2));
         users.push(user);
     }
@@ -671,15 +719,86 @@ async function createEngagement(users, videos) {
 
 // ---- main ---------------------------------------------------------------
 
+/** Admin-API usage with retries; never fatal. */
+async function safeUsage() {
+    for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+            return await cloudinary.api.usage();
+        } catch {
+            await sleep(1500 * (attempt + 1));
+        }
+    }
+    return null;
+}
+
+const LOCK_FILE = "./public/temp/.seedMedia.lock";
+
+/**
+ * Two seeders at once is not a theoretical problem: they race on user inserts
+ * (E11000) and between them saturate the source CDN badly enough that most
+ * downloads fail. One at a time.
+ */
+function acquireLock() {
+    try {
+        fs.mkdirSync(path.dirname(LOCK_FILE), { recursive: true });
+        const fd = fs.openSync(LOCK_FILE, "wx");
+        fs.writeSync(fd, String(process.pid));
+        fs.closeSync(fd);
+    } catch (err) {
+        if (err.code !== "EEXIST") throw err;
+
+        const owner = Number(fs.readFileSync(LOCK_FILE, "utf8").trim());
+        let alive = false;
+        try { process.kill(owner, 0); alive = true; } catch { alive = false; }
+
+        if (alive) {
+            throw new Error(
+                `another seed is already running (pid ${owner}). ` +
+                `Wait for it, or kill it and delete ${LOCK_FILE}`
+            );
+        }
+        // Previous run died without cleaning up; take it over.
+        fs.writeFileSync(LOCK_FILE, String(process.pid));
+    }
+
+    const release = () => {
+        try {
+            if (fs.existsSync(LOCK_FILE) &&
+                fs.readFileSync(LOCK_FILE, "utf8").trim() === String(process.pid)) {
+                fs.unlinkSync(LOCK_FILE);
+            }
+        } catch { /* best effort */ }
+    };
+    process.on("exit", release);
+    process.on("SIGINT", () => { release(); process.exit(130); });
+    process.on("SIGTERM", () => { release(); process.exit(143); });
+}
+
 async function main() {
     if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY) {
         throw new Error("Cloudinary credentials missing from .env");
     }
+    acquireLock();
 
-    const before = await cloudinary.api.usage();
-    console.log(
-        `[seed] Cloudinary plan "${before.plan}" — ${before.credits.usage}/${before.credits.limit} credits used\n`
-    );
+    // Quota reporting is a nicety. It sits on the Admin API, which resets
+    // connections often enough that letting it abort the run means losing a
+    // whole seed to a blip before a single byte was uploaded.
+    const before = await safeUsage();
+    if (before) {
+        console.log(
+            `[seed] Cloudinary plan "${before.plan}" — ${before.credits.usage}/${before.credits.limit} credits used\n`
+        );
+    } else {
+        console.log("[seed] Cloudinary usage unavailable (continuing)\n");
+    }
+
+    if (DROP_PLACEHOLDERS) {
+        // seed.js writes videoFile: "https://example.com/seed/N.mp4". Those
+        // rows render a card and then fail the moment anyone clicks them,
+        // which is worse for a demo than having fewer videos.
+        const { deletedCount } = await Video.deleteMany({ videoFile: /^https:\/\/example\.com\// });
+        console.log(`[seed] --drop-placeholders: removed ${deletedCount} unplayable video(s)`);
+    }
 
     if (FRESH) {
         console.log("[seed] --fresh: clearing seeded content and all engagement...");
@@ -762,8 +881,9 @@ async function main() {
     console.log("[seed] generating watch history, likes and subscriptions...");
     const { watchCount, likeCount, subCount } = await createEngagement(users, videos);
 
-    const after = await cloudinary.api.usage();
-    const spent = (after.credits.usage - before.credits.usage).toFixed(3);
+    const after = await safeUsage();
+    const spent =
+        after && before ? (after.credits.usage - before.credits.usage).toFixed(3) : "?";
 
     console.log(`
 [seed] done.
@@ -773,7 +893,7 @@ async function main() {
   likes:          ${likeCount}
   subscriptions:  ${subCount}
 
-  Cloudinary:     ${after.credits.usage}/${after.credits.limit} credits (this run: +${spent})
+  Cloudinary:     ${after ? `${after.credits.usage}/${after.credits.limit} credits (this run: +${spent})` : "usage unavailable"}
 
 Next: npm run jobs      # similarity matrix, taste profiles, trending scores
 Sign in as any of: ${CHANNEL_NAMES.slice(0, Math.min(3, NUM_USERS)).map((c) => c[0]).join(", ")} … / Password123!
