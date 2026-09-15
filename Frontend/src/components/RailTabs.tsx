@@ -2,6 +2,8 @@
 
 import { useState, type ReactNode } from "react";
 
+import { chip, chipOn, chipRow } from "@/lib/ui";
+
 /** Tab shell for the watch-page sidebar. Both panels render server-side; this
  *  only decides which is visible, so neither pays a fetch on switch. */
 export default function RailTabs({
@@ -13,16 +15,15 @@ export default function RailTabs({
 }) {
     const [tab, setTab] = useState<"related" | "profile">("related");
 
-    const railTab =
-        "bg-transparent border-0 border-b-2 border-transparent px-3 py-2 cursor-pointer font-mono text-[10.5px] tracking-[0.13em] uppercase text-text-faint aria-selected:text-text aria-selected:border-b-live";
-
     return (
         <>
-            <div className="flex gap-0.5 border-b border-line mb-3.5" role="tablist">
+            {/* Chips rather than underlined tabs — the rail's header on
+                YouTube is the same pill row the home feed uses. */}
+            <div className={chipRow + " pt-0 pb-3"} role="tablist">
                 <button
                     role="tab"
                     aria-selected={tab === "related"}
-                    className={railTab}
+                    className={tab === "related" ? chipOn : chip}
                     onClick={() => setTab("related")}
                 >
                     Related
@@ -30,7 +31,7 @@ export default function RailTabs({
                 <button
                     role="tab"
                     aria-selected={tab === "profile"}
-                    className={railTab}
+                    className={tab === "profile" ? chipOn : chip}
                     onClick={() => setTab("profile")}
                 >
                     Your profile

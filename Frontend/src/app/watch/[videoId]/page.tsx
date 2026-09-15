@@ -10,9 +10,10 @@ import WhyPanel from "@/components/WhyPanel";
 import TasteProfilePanel from "@/components/TasteProfilePanel";
 import Comments from "@/components/Comments";
 import RailTabs from "@/components/RailTabs";
+import Description from "@/components/Description";
 import Empty from "@/components/Empty";
 import { count, ago } from "@/lib/format";
-import { avatar, btn, mono, tag, skeleton, skLine, railList } from "@/lib/ui";
+import { tag, skeleton, skLine, railList } from "@/lib/ui";
 import type { Video, Comment, TasteProfile, Paginated } from "@/types";
 
 export const dynamic = "force-dynamic";
@@ -73,11 +74,14 @@ export default async function WatchPage({
     }
 
     const user = await getCurrentUser();
-    const owner = video.owner;
 
     return (
-        <div className="grid grid-cols-[minmax(0,1fr)_372px] gap-7 items-start max-[1080px]:grid-cols-[minmax(0,1fr)]">
-            <div>
+        /* Two columns on desktop: the player column takes what's left up to
+           1280px, the recommendations rail is a fixed 402px beside it. Below
+           1024px the rail drops under the comments and everything is one
+           column. */
+        <div className="flex flex-col lg:flex-row gap-6 items-start max-w-[1754px] mx-auto">
+            <div className="w-full lg:flex-1 min-w-0 max-w-watch">
                 {/* The only client component on the critical path. Everything
                     below it is server-rendered and ships no JS. */}
                 <VideoPlayer
@@ -86,52 +90,41 @@ export default async function WatchPage({
                     rankPosition={pos ? Number(pos) : undefined}
                 />
 
-                <h1 className="text-xl font-bold leading-[1.3] mt-[18px] mb-3 max-[720px]:text-[17px]">
+                <h1 className="text-xl font-medium leading-snug mt-4 mb-0 max-[720px]:text-lg">
                     {video.title}
                 </h1>
 
-                <div className="flex items-center gap-3.5 flex-wrap pb-4 border-b border-line">
-                    <Link className="flex items-center gap-[10px]" href={`/channel/${owner.username}`}>
-                        <img className={avatar} src={owner.avatar} alt="" />
-                        <span>
-                            <span className="font-semibold text-sm">{owner.fullName || owner.username}</span>
-                            <br />
-                            <span className="font-mono text-[11.5px] text-text-faint">
-                                {count(owner.subscribersCount ?? 0)} subscribers
-                            </span>
-                        </span>
-                    </Link>
+                <WatchActions video={video} />
 
-                    <div className="ml-auto flex gap-2 max-[720px]:ml-0 max-[720px]:w-full">
-                        <span className={btn + " " + mono} style={{ cursor: "default", fontSize: 12 }}>
-                            {count(video.views ?? 0)} views · {ago(video.createdAt)}
-                        </span>
-                        <WatchActions video={video} />
-                    </div>
-                </div>
+                <Description
+                    meta={`${count(video.views ?? 0)} views · ${ago(video.createdAt)}`}
+                    text={video.description}
+                >
+                    {video.tags?.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-3">
+                            {video.tags.map((t) => (
+                                <Link
+                                    key={t}
+                                    className={tag}
+                                    href={`/search?q=${encodeURIComponent(t)}`}
+                                >
+                                    #{t}
+                                </Link>
+                            ))}
+                        </div>
+                    )}
+                </Description>
 
                 {user && <WhyPanel videoId={videoId} />}
 
-                <div className="bg-surface border border-line rounded-md px-4 py-3.5 mt-4 text-[13.5px] whitespace-pre-wrap">
-                    {video.description}
-                </div>
-
-                {video.tags?.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-3">
-                        {video.tags.map((t) => (
-                            <Link key={t} className={tag} href={`/search?q=${encodeURIComponent(t)}`}>
-                                #{t}
-                            </Link>
-                        ))}
-                    </div>
-                )}
-
-                <Suspense fallback={<div className={skeleton + " " + skLine} style={{ marginTop: 30 }} />}>
+                <Suspense
+                    fallback={<div className={skeleton + " " + skLine + " mt-8"} />}
+                >
                     <CommentSection videoId={videoId} />
                 </Suspense>
             </div>
 
-            <aside>
+            <aside className="w-full lg:w-[402px] lg:shrink-0">
                 <RailTabs
                     related={
                         <Suspense fallback={<RailSkeleton />}>
@@ -139,7 +132,7 @@ export default async function WatchPage({
                         </Suspense>
                     }
                     profile={
-                        <Suspense fallback={<div className={skeleton + " " + skLine} style={{ height: 90 }} />}>
+                        <Suspense fallback={<div className={skeleton + " h-24"} />}>
                             <ProfilePanel signedIn={Boolean(user)} />
                         </Suspense>
                     }
@@ -155,7 +148,7 @@ async function RelatedRail({ videoId }: { videoId: string }) {
 
     if (!related.length) {
         return (
-            <p className="text-text-faint text-[13px]">
+            <p className="text-text-dim text-[13px]">
                 No related videos yet. Run npm run jobs to build the similarity index.
             </p>
         );

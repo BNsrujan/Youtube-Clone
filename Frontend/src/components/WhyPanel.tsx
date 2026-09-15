@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api-client";
 import { SignalBreakdown } from "./SignalBars";
-import { eyebrow, skeleton, skLine, tag } from "@/lib/ui";
+import { eyebrow, skeleton, skLine, tag, infoBox } from "@/lib/ui";
 import type { WhyExplanation } from "@/types";
 
 /**
@@ -35,20 +35,20 @@ export default function WhyPanel({ videoId }: { videoId: string }) {
     }, [open, videoId, data]);
 
     return (
-        <div className="mt-4 bg-surface border border-line rounded-md overflow-hidden">
+        <div className={infoBox + " mt-3 p-0 overflow-hidden"}>
             <button
-                className="flex items-center justify-between w-full bg-transparent border-none px-4 py-[11px] cursor-pointer text-left hover:bg-surface-2"
+                className="flex items-center justify-between w-full bg-transparent border-none px-3 py-3 cursor-pointer text-left transition-colors duration-100 hover:bg-surface-3"
                 onClick={() => setOpen((o) => !o)}
                 aria-expanded={open}
             >
-                <span className={eyebrow}>Why you&apos;re seeing this</span>
-                <span className="font-mono text-[11px] text-text-faint">
-                    {open ? "hide −" : "show +"}
+                <span className="text-[13px] font-medium text-text">Why you&apos;re seeing this</span>
+                <span className="text-[13px] font-medium text-text-dim">
+                    {open ? "Show less" : "...more"}
                 </span>
             </button>
 
             {open && (
-                <div className="px-4 pt-1 pb-4 border-t border-line">
+                <div className="px-3 pt-1 pb-4 border-t border-line">
                     {error ? (
                         <p className="text-[13px] text-text-dim mt-2 mb-0">
                             Scoring unavailable: {error}
@@ -63,7 +63,7 @@ export default function WhyPanel({ videoId }: { videoId: string }) {
                                     <p className={eyebrow + " mt-3.5"}>
                                         Matched against your profile
                                     </p>
-                                    <div className="flex flex-wrap gap-1.5 mt-3">
+                                    <div className="flex flex-wrap gap-2 mt-3">
                                         {data.matchedTags.map((t) => (
                                             <span key={t} className={tag}>#{t}</span>
                                         ))}

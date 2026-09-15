@@ -19,12 +19,17 @@ export default async function TrendingPage({
 
     return (
         <>
+            <div className="sticky top-nav z-20 bg-bg -mt-3">
+                <Suspense fallback={<div className="h-14" />}>
+                    <CategoryFilter />
+                </Suspense>
+            </div>
+
             <div className={feedHead}>
-                <h1 className={hDisplay + " text-[26px]"}>Trending</h1>
+                <h1 className={hDisplay + " text-xl"}>Trending</h1>
                 <span className={eyebrow}>
                     log₁₀(engagement) − age/12h · recomputed every 30 min
                 </span>
-                <CategoryFilter />
             </div>
 
             <Suspense key={category ?? "all"} fallback={<GridSkeleton />}>

@@ -1,21 +1,18 @@
 /*
- * videotube — design system
+ * videotube — YouTube-faithful design system
  *
- * Direction: broadcast monitoring equipment. The reference is a video
- * engineer's rack — waveform monitors, bitrate graphs, status strips — not
- * a consumer media app. That's deliberate: the point of this interface is to
- * make the streaming and recommendation machinery visible, so it borrows the
- * vernacular of the instruments that measure video rather than the ones that
- * merely play it.
- *
- * Colour carries meaning here, not decoration. Each recommendation signal has
- * a fixed hue that stays constant everywhere it appears, so the pips on a card
- * and the bars in the breakdown panel read as the same vocabulary.
+ * Direction: YouTube's own interface. Flat, quiet, and almost entirely
+ * greyscale, so the thumbnails are the only saturated thing on screen. Red is
+ * reserved for the logo mark alone; blue for links and focus.
  *
  * These custom properties are the single source of truth for that palette —
  * tailwind.config.ts wraps them as utilities (bg-surface, text-text-dim, …),
  * and lib/format.ts hands a handful of them straight to inline `style` for
  * per-row colours Tailwind's static class extraction can't reach.
+ *
+ * Dark is the default (`:root`), matching what the app shipped with; light is
+ * opt-in via `data-theme="light"` on <html>, set before first paint by the
+ * inline script in layout.tsx so there's no flash of the wrong theme.
  */
 
 @tailwind base;
@@ -23,21 +20,36 @@
 @tailwind utilities;
 
 :root {
-    /* Deep blue-slate rather than near-black: a broadcast monitor bezel, not
-       an OLED void. Keeps video the brightest thing on screen without the
-       harsh black-and-one-neon-accent look. */
-    --bg: #0e1319;
-    --surface: #161d26;
-    --surface-2: #1e2733;
-    --surface-3: #273241;
-    --line: #2c3846;
-    --line-bright: #3d4c5e;
+    color-scheme: dark;
 
-    --text: #dfe6ef;
-    --text-dim: #9aa8bb;
-    --text-faint: #6b7a8d;
+    /* ---- surfaces ------------------------------------------------------ */
+    --bg: #0f0f0f;          /* page */
+    --surface: #212121;     /* raised chrome: menus, drawer */
+    --surface-2: #272727;   /* secondary surface: chips, action pills */
+    --surface-3: #3f3f3f;   /* hover */
+    --line: #303030;
+    --line-bright: #4d4d4d;
 
-    /* Signal palette — categorical, tied to recommendation sources. */
+    /* ---- text ---------------------------------------------------------- */
+    --text: #f1f1f1;
+    --text-dim: #aaaaaa;
+    --text-faint: #8b8b8b;
+
+    /* Inverted pair — selected chips and the Subscribe button. */
+    --invert-bg: #f1f1f1;
+    --invert-text: #0f0f0f;
+
+    /* ---- brand --------------------------------------------------------- */
+    --brand: #ff0000;       /* logo mark only */
+    --brand-blue: #065fd4;  /* the spec's link/focus blue */
+    --link: #3ea6ff;        /* …lifted for legibility on a near-black page */
+
+    --scrim: rgba(0, 0, 0, 0.6);
+    --badge: rgba(0, 0, 0, 0.6);
+
+    /* ---- signal palette ------------------------------------------------ */
+    /* Categorical, tied to recommendation sources. The one place colour
+       carries meaning rather than decoration, so it survives the re-skin. */
     --sig-content: #5aa2ff;
     --sig-collab: #a98bfa;
     --sig-engagement: #45d483;
@@ -46,10 +58,51 @@
     --sig-creator: #4fd6d0;
     --sig-diversity: #8d9bb0;
 
-    --live: #ff5257;
-    --ok: #45d483;
+    --live: #ff0000;
+    --ok: #2ba640;
 
-    --shell: 1560px;
+    /* Display and body are the same face here — Roboto at 500 is what
+       carries a heading in the reference interface, not a second family. */
+    --font-display: var(--font-body);
+
+    /* ---- metrics ------------------------------------------------------- */
+    --nav-h: 56px;
+    --sidebar-w: 240px;
+    --rail-w: 72px;
+    --shell: 1754px;
+}
+
+:root[data-theme="light"] {
+    color-scheme: light;
+
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f2f2f2;
+    --surface-3: #e5e5e5;
+    --line: #e5e5e5;
+    --line-bright: #cccccc;
+
+    --text: #0f0f0f;
+    --text-dim: #606060;
+    --text-faint: #909090;
+
+    --invert-bg: #0f0f0f;
+    --invert-text: #ffffff;
+
+    --link: #065fd4;
+
+    --scrim: rgba(0, 0, 0, 0.5);
+
+    /* Darkened so the bars keep AA contrast against a white page. */
+    --sig-content: #1565c0;
+    --sig-collab: #6a3fd0;
+    --sig-engagement: #0f8a46;
+    --sig-freshness: #a86800;
+    --sig-subscription: #c2185b;
+    --sig-creator: #00796b;
+    --sig-diversity: #5f6b7a;
+
+    --ok: #0f8a46;
 }
 
 @layer base {
@@ -60,7 +113,7 @@
 
     body {
         @apply m-0 bg-bg text-text font-body text-sm antialiased;
-        line-height: 1.55;
+        line-height: 1.4;
     }
 
     a {
@@ -80,7 +133,19 @@
     }
 
     :focus-visible {
-        @apply outline outline-2 outline-sig-content outline-offset-2;
+        outline: 2px solid var(--link);
+        outline-offset: 2px;
+    }
+}
+
+@layer utilities {
+    /* Chip rows and the rail scroll horizontally; YouTube shows no track. */
+    .no-scrollbar {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
     }
 }
 

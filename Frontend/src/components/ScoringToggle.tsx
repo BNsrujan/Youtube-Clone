@@ -32,8 +32,7 @@ export default function ScoringToggle() {
 
     return (
         <button
-            className={(on ? btnOn : btn) + " ml-auto"}
-            style={{ fontSize: 12, padding: "5px 11px" }}
+            className={(on ? btnOn : btn) + " ml-auto h-8 px-3 text-[13px]"}
             onClick={toggle}
             aria-pressed={on}
             disabled={pending}

@@ -65,8 +65,8 @@ const MAX_DURATION = Number(args.maxDuration ?? 900);
 const CONCURRENCY = Number(args.concurrency ?? 2);
 const DRY_RUN = Boolean(args["dry-run"]);
 const FRESH = Boolean(args.fresh);
-const SOURCE = String(args.source ?? "auto"); // pexels | archive | wikimedia | auto
 const DROP_PLACEHOLDERS = Boolean(args["drop-placeholders"]);
+const SOURCE = String(args.source ?? "auto"); // pexels | archive | wikimedia | auto
 
 const CLOUD_FOLDER = "videotube/seed";
 const TEMP_DIR = "./public/temp";
@@ -792,12 +792,17 @@ async function main() {
         console.log("[seed] Cloudinary usage unavailable (continuing)\n");
     }
 
+    // The original seed.js writes videoFile: "https://example.com/seed/N.mp4".
+    // Those rows render a card and then fail to play, which is worse than not
+    // being there — the feed looks populated and the product looks broken.
     if (DROP_PLACEHOLDERS) {
-        // seed.js writes videoFile: "https://example.com/seed/N.mp4". Those
-        // rows render a card and then fail the moment anyone clicks them,
-        // which is worse for a demo than having fewer videos.
-        const { deletedCount } = await Video.deleteMany({ videoFile: /^https:\/\/example\.com\// });
-        console.log(`[seed] --drop-placeholders: removed ${deletedCount} unplayable video(s)`);
+        const { deletedCount } = await Video.deleteMany({
+            $or: [
+                { title: /^\[seed\]/ },
+                { videoFile: /^https:\/\/example\.com\// },
+            ],
+        });
+        console.log(`[seed] removed ${deletedCount} placeholder video(s) that cannot play`);
     }
 
     if (FRESH) {

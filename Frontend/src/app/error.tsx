@@ -19,7 +19,7 @@ export default function Error({
         <div className={empty}>
             <h3 className={emptyH3}>Something broke on this page</h3>
             <p className={emptyP}>{error.message}</p>
-            <p className="m-0 mb-4 text-xs text-text-faint">
+            <p className="m-0 mb-5 text-xs text-text-faint">
                 If this persists, check the backend is running on port 8000.
             </p>
             <button className={btnPrimary} onClick={reset}>

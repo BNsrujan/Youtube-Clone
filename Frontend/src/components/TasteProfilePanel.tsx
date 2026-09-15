@@ -70,12 +70,11 @@ export default function TasteProfilePanel({ profile }: { profile: TasteProfile |
             )}
 
             <div className="mt-4 pt-3.5 border-t border-line flex items-center gap-[10px]">
-                <span className={mono + " text-[11px] text-text-faint"}>
+                <span className={mono + " text-xs text-text-dim"}>
                     diversity {data.diversityScore.toFixed(2)} · {data.interactionCount} signals
                 </span>
                 <button
-                    className={btn + " ml-auto"}
-                    style={{ fontSize: 12 }}
+                    className={btn + " ml-auto h-8 px-3 text-[13px]"}
                     onClick={reset}
                     disabled={busy}
                 >

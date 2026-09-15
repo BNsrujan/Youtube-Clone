@@ -53,10 +53,7 @@ export function SignalBreakdown({
             ))}
 
             {total !== undefined && (
-                <div
-                    className={sigrow + " border-t border-line mt-1.5"}
-                    style={{ paddingTop: 8 }}
-                >
+                <div className={sigrow + " border-t border-line mt-1.5 pt-2"}>
                     <span className={sigrowK} style={{ color: "var(--text)" }}>total</span>
                     <span />
                     <span className={sigrowV} style={{ color: "var(--text)" }}>
@@ -85,7 +82,7 @@ export function SourcePips({ sources = [] }: { sources?: CandidateSource[] }) {
                     style={{ background: SOURCE_COLORS[s] ?? "var(--line-bright)" }}
                 />
             ))}
-            <span className="font-mono text-[10px] text-text-faint tracking-[0.04em] ml-[3px]">
+            <span className="text-xs text-text-faint ml-1">
                 {SOURCE_LABELS[unique[0]] ?? unique[0]}
             </span>
         </div>

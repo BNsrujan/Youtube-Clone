@@ -3,6 +3,7 @@ import { serverApi, safe, getCurrentUser } from "@/lib/api-server";
 import VideoGrid, { GridSkeleton } from "@/components/VideoGrid";
 import VideoCard from "@/components/VideoCard";
 import ScoringToggle from "@/components/ScoringToggle";
+import CategoryFilter from "@/components/CategoryFilter";
 import Empty from "@/components/Empty";
 import { feedHead, hDisplay, eyebrow, grid } from "@/lib/ui";
 import type { Feed, Video } from "@/types";
@@ -31,6 +32,14 @@ export default async function HomePage({
 
     return (
         <>
+            {/* Sits directly under the 56px bar and stays there while the feed
+                scrolls, as it does on YouTube. */}
+            <div className="sticky top-nav z-20 bg-bg -mt-3">
+                <Suspense fallback={<div className="h-14" />}>
+                    <CategoryFilter />
+                </Suspense>
+            </div>
+
             {user && (
                 <Suspense fallback={null}>
                     <ContinueWatching />
@@ -65,7 +74,7 @@ async function PersonalisedFeed({
     return (
         <>
             <div className={feedHead}>
-                <h1 className={hDisplay + " text-[26px]"}>{signedIn ? "For you" : "Popular now"}</h1>
+                <h1 className={hDisplay + " text-xl"}>{signedIn ? "For you" : "Popular now"}</h1>
 
                 {/* The strategy readout is the point: the feed says out loud
                     which path produced it instead of pretending it's magic. */}
@@ -100,7 +109,7 @@ async function PersonalisedFeed({
                 <>
                     <VideoGrid videos={items} feedSource="home" />
                     {explain && (
-                        <p className="font-mono text-[10px] font-medium tracking-[0.14em] uppercase text-text-dim mt-[22px]">
+                        <p className="text-[13px] text-text-dim mt-6">
                             Coloured pips show which retrieval source surfaced each video. Open one
                             to see the full score breakdown.
                         </p>
@@ -120,9 +129,9 @@ async function ContinueWatching() {
     if (!items.length) return null;
 
     return (
-        <section className="mb-[38px]">
+        <section className="mb-10">
             <div className={feedHead}>
-                <h2 className={hDisplay + " text-lg"}>Continue watching</h2>
+                <h2 className={hDisplay + " text-xl"}>Continue watching</h2>
             </div>
             <div className={grid}>
                 {items.slice(0, 4).map((v) => (
@@ -137,7 +146,7 @@ function FeedSkeleton({ signedIn }: { signedIn: boolean }) {
     return (
         <>
             <div className={feedHead}>
-                <h1 className={hDisplay + " text-[26px]"}>{signedIn ? "For you" : "Popular now"}</h1>
+                <h1 className={hDisplay + " text-xl"}>{signedIn ? "For you" : "Popular now"}</h1>
             </div>
             <GridSkeleton />
         </>

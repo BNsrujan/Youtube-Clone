@@ -6,6 +6,9 @@ import type { Config } from "tailwindcss";
  * straight to inline `style` for per-row colours that Tailwind's static
  * class extraction can't express. Tailwind just wraps the same variables as
  * utilities so the two stay in sync from one source of truth.
+ *
+ * The radius scale maps onto YouTube's three sizes: 4px badges, 8px rail
+ * thumbnails, 12px grid thumbnails and panels. Pills use `rounded-full`.
  */
 const config: Config = {
     content: ["./src/**/*.{js,ts,jsx,tsx,mdx}"],
@@ -21,6 +24,13 @@ const config: Config = {
                 text: "var(--text)",
                 "text-dim": "var(--text-dim)",
                 "text-faint": "var(--text-faint)",
+                "invert-bg": "var(--invert-bg)",
+                "invert-text": "var(--invert-text)",
+                brand: "var(--brand)",
+                "brand-blue": "var(--brand-blue)",
+                link: "var(--link)",
+                scrim: "var(--scrim)",
+                badge: "var(--badge)",
                 "sig-content": "var(--sig-content)",
                 "sig-collab": "var(--sig-collab)",
                 "sig-engagement": "var(--sig-engagement)",
@@ -32,20 +42,26 @@ const config: Config = {
                 ok: "var(--ok)",
             },
             fontFamily: {
-                display: ["var(--font-display)", "system-ui", "sans-serif"],
-                body: ["var(--font-body)", "system-ui", "sans-serif"],
+                display: ["var(--font-display)", "Roboto", "Arial", "sans-serif"],
+                body: ["var(--font-body)", "Roboto", "Arial", "sans-serif"],
                 mono: ["var(--font-mono)", "ui-monospace", "monospace"],
             },
             borderRadius: {
-                sm: "3px",
-                md: "6px",
-                lg: "10px",
+                sm: "4px",
+                DEFAULT: "8px",
+                md: "8px",
+                lg: "12px",
+                xl: "16px",
+            },
+            spacing: {
+                nav: "var(--nav-h)",
+                sidebar: "var(--sidebar-w)",
+                rail: "var(--rail-w)",
             },
             maxWidth: {
                 shell: "var(--shell)",
-            },
-            boxShadow: {
-                dot: "0 0 0 3px rgba(255, 82, 87, 0.16)",
+                search: "640px",
+                watch: "1280px",
             },
             keyframes: {
                 "pulse-live": {

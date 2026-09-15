@@ -7,8 +7,8 @@ import { bitrate as fmtBitrate, duration as fmtDuration } from "@/lib/format";
 import type { PlaybackManifest } from "@/types";
 
 const telCell = "px-3.5 py-2 border-r border-line flex flex-col gap-0.5 whitespace-nowrap shrink-0 last:border-r-0";
-const telK = "text-[9px] tracking-[0.13em] uppercase text-text-faint";
-const telV = "font-semibold [font-variant-numeric:tabular-nums]";
+const telK = "text-[10px] tracking-[0.06em] uppercase text-text-dim";
+const telV = "font-medium [font-variant-numeric:tabular-nums]";
 
 /**
  * The player. Necessarily a Client Component — it owns a media element, a
@@ -257,7 +257,7 @@ export default function VideoPlayer({
     // -------------------------------------------------------------- render
     if (error) {
         return (
-            <div className="bg-black border border-line rounded-t-lg overflow-hidden aspect-video grid place-items-center">
+            <div className="bg-black rounded-lg overflow-hidden aspect-video grid place-items-center">
                 <p className="m-0 p-[30px] text-text-dim text-center">
                     {error}
                 </p>
@@ -270,7 +270,7 @@ export default function VideoPlayer({
 
     return (
         <>
-            <div className="bg-black border border-line rounded-t-lg overflow-hidden aspect-video">
+            <div className="bg-black rounded-lg overflow-hidden aspect-video">
                 <video
                     className="w-full h-full block bg-black"
                     ref={videoRef}
@@ -281,7 +281,7 @@ export default function VideoPlayer({
             </div>
 
             <div
-                className="flex items-stretch bg-surface border border-t-0 border-line rounded-b-lg font-mono text-[11.5px] overflow-x-auto"
+                className="flex items-stretch bg-surface-2 rounded-lg mt-2 font-mono text-[11.5px] overflow-x-auto no-scrollbar"
                 aria-label="Playback telemetry"
             >
                 <div className={telCell}>
@@ -347,7 +347,7 @@ export default function VideoPlayer({
                 <div className="flex-1 min-w-0 px-3.5 py-2 border-r border-line flex flex-col items-end justify-center gap-0.5 whitespace-nowrap last:border-r-0">
                     <span className={telK}>Quality</span>
                     <select
-                        className="bg-surface-2 border border-line rounded px-[5px] py-px text-[11px] font-mono"
+                        className="bg-bg border border-line-bright rounded-sm px-1.5 py-px text-[11px] font-mono"
                         value={telemetry.auto ? -1 : telemetry.level}
                         onChange={(e) => setQuality(Number(e.target.value))}
                         aria-label="Video quality"

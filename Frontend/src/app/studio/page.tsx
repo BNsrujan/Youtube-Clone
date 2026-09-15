@@ -34,7 +34,7 @@ export default async function StudioPage() {
     return (
         <>
             <div className={feedHead}>
-                <h1 className={hDisplay + " text-[26px]"}>Studio</h1>
+                <h1 className={hDisplay + " text-xl"}>Studio</h1>
                 <span className={eyebrow}>your channel</span>
             </div>
 
@@ -77,7 +77,7 @@ async function Overview() {
                         {stats.viewsOverTime.map((d) => (
                             <div
                                 key={d.date}
-                                className="flex-1 min-w-[3px] bg-sig-content rounded-t-[2px] opacity-[0.85]"
+                                className="flex-1 min-w-[3px] bg-sig-content rounded-t-sm opacity-90"
                                 title={`${d.date}: ${d.views} views`}
                                 style={{ height: `${Math.max((d.views / maxDay) * 100, 3)}%` }}
                             />
@@ -126,10 +126,10 @@ async function VideoTable() {
                             <tr key={v._id}>
                                 <td className={tableTd}>
                                     <div className="flex items-center gap-2.5">
-                                        <img src={v.thumbnail} alt="" className="w-[76px] rounded-sm" />
+                                        <img src={v.thumbnail} alt="" className="w-[76px] aspect-video object-cover rounded-md bg-surface-2" />
                                         <div className="min-w-0">
-                                            <div className="font-semibold">{v.title}</div>
-                                            <div className={mono + " text-[11px] text-text-faint"}>
+                                            <div className="font-medium line-clamp-1">{v.title}</div>
+                                            <div className={mono + " text-xs text-text-dim"}>
                                                 {duration(v.duration)} · {v.category}
                                             </div>
                                         </div>
@@ -137,7 +137,7 @@ async function VideoTable() {
                                 </td>
                                 <td className={tableTd}>
                                     <span
-                                        className={mono + " text-[11px]"}
+                                        className={mono + " text-xs font-medium"}
                                         style={{ color: v.isPublished ? "var(--ok)" : "var(--text-faint)" }}
                                     >
                                         {v.transcodeStatus !== "ready"

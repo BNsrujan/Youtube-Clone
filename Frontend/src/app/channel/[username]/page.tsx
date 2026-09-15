@@ -45,18 +45,22 @@ export default async function ChannelPage({
         <>
             {channel.coverImage && (
                 <div
-                    className="h-40 rounded-lg bg-cover bg-center border border-line mb-[18px]"
+                    className="aspect-[6/1] min-h-[100px] rounded-lg bg-cover bg-center bg-surface-2 mb-4"
                     style={{ backgroundImage: `url(${channel.coverImage})` }}
                 />
             )}
 
-            <div className="flex items-center gap-4 mb-[30px] flex-wrap">
-                <img className="w-[72px] h-[72px] rounded-full object-cover" src={channel.avatar} alt="" />
-                <div>
-                    <h1 className={hDisplay + " text-2xl"}>
+            <div className="flex items-center gap-6 mb-8 flex-wrap">
+                <img
+                    className="w-20 h-20 sm:w-[128px] sm:h-[128px] rounded-full object-cover bg-surface-2 shrink-0"
+                    src={channel.avatar}
+                    alt=""
+                />
+                <div className="min-w-0">
+                    <h1 className={hDisplay + " text-2xl sm:text-4xl"}>
                         {channel.fullName || channel.username}
                     </h1>
-                    <p className={mono + " text-text-faint text-xs mt-1 mb-0"}>
+                    <p className={mono + " text-text-dim text-sm mt-2 mb-0"}>
                         @{channel.username} · {count(channel.subscribersCount ?? 0)} subscribers
                     </p>
                 </div>
